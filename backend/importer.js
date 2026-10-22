@@ -2,7 +2,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const { importSources, importClaims, importMetrics, importInitiatives, importRoiScenarios, importWbsTasks, importCheckpoints, recordImport, updateRunStatus } = require('./db');
+const { importSources, importClaims, importMetrics, importInitiatives, importRoiScenarios, importWbsTasks, importCheckpoints, recordImport, updateRunStage } = require('./db');
 
 const DATA_DIR = process.env.DIAMOND_DATA || path.resolve(__dirname, 'data');
 
@@ -62,7 +62,7 @@ function importStage(projectId, runId, stage) {
   }
 
   recordImport(projectId, runId, stage, path.join(dataDir, `${stage}.json`));
-  updateRunStatus(projectId, runId, 'running', stage);
+  updateRunStage(projectId, runId, stage);
 
   return { stage, results };
 }

@@ -104,8 +104,9 @@ async function handleStartProject(req, res, projectId) {
     db.updateProjectStatus(projectId, 'running');
     send(res, 200, { status: 'started', run_id: runId, antfarm: result });
   } else {
-    // Still record the run attempt
+    // Record the failed run attempt — mark as failed so it doesn't block restarts
     db.createRun(projectId, runId, taskText);
+    db.updateRunStatus(projectId, runId, 'failed', null);
     send(res, 500, { status: 'error', run_id: runId, error: result.stderr || result.stdout });
   }
 }
@@ -229,8 +230,9 @@ async function handleDashboard(req, res, projectId) {
   data.stages = importer.checkStageComplete(projectId, latestRun.run_id);
   // Also read dashboard.json for master-level data
   let dashboard = null;
+  const dashRunId = active ? active.run_id : latestRun.run_id;
   try {
-    const dp = path.join(DATA_DIR, 'projects', projectId, 'Output', active.run_id, 'data', 'dashboard.json');
+    const dp = path.join(DATA_DIR, 'projects', projectId, 'Output', dashRunId, 'data', 'dashboard.json');
     dashboard = JSON.parse(fs.readFileSync(dp, 'utf-8'));
   } catch {}
 

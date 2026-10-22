@@ -172,6 +172,9 @@ CREATE INDEX IF NOT EXISTS idx_sources_project ON sources(project_id);
 CREATE INDEX IF NOT EXISTS idx_claims_project_stage ON claims(project_id, stage);
 CREATE INDEX IF NOT EXISTS idx_runs_project ON runs(project_id);
 CREATE INDEX IF NOT EXISTS idx_wbs_project ON wbs_tasks(project_id, run_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sources_dedup ON sources(project_id, source_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_claims_dedup ON claims(project_id, claim_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_roi_dedup ON roi_scenarios(project_id, run_id, initiative_id, name);
 `;
 
 function init() {
@@ -229,8 +232,13 @@ function updateRunStatus(projectId, runId, status, stageReached) {
   db.prepare(`UPDATE runs SET ${updates.join(', ')} WHERE project_id = ? AND run_id = ?`).run(...params);
 }
 
+function updateRunStage(projectId, runId, stageReached) {
+  db.prepare('UPDATE runs SET stage_reached = ? WHERE project_id = ? AND run_id = ?')
+    .run(stageReached, projectId, runId);
+}
+
 function getActiveRun(projectId) {
-  return db.prepare('SELECT * FROM runs WHERE project_id = ? AND status NOT IN (\'completed\', \'failed\') ORDER BY started_at DESC LIMIT 1').get(projectId);
+  return db.prepare('SELECT * FROM runs WHERE project_id = ? AND status NOT IN (\'completed\', \'failed\', \'cancelled\') ORDER BY started_at DESC LIMIT 1').get(projectId);
 }
 
 function getRuns(projectId) {
@@ -345,7 +353,7 @@ function getDashboardData(projectId, runId) {
 }
 
 module.exports = { init, getDb, getProject, listProjects, createProject, updateProjectStatus,
-  createRun, updateRunStatus, getActiveRun, getRuns,
+  createRun, updateRunStatus, updateRunStage, getActiveRun, getRuns,
   upsertGate, fulfillGate, getGate, recordGateSubmission,
   importSources, importClaims, importMetrics, importInitiatives, importRoiScenarios, importWbsTasks, importCheckpoints, recordImport,
   getDashboardData,

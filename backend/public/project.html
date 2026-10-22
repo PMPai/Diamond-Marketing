@@ -1,197 +1,195 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diamond Marketing — 项目详情</title>
-<link rel="stylesheet" href="/css/style.css">
+<html lang="zh-Hant" data-theme="dark">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>專案詳情 — 鑽石營銷</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-.stage-row { display: flex; gap: 12px; flex-wrap: wrap; }
-.stage-btn { flex: 1; min-width: 90px; padding: 12px 10px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.2s; background: var(--surface); font-size: 0.82rem; }
-.stage-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.stage-btn .stage-num { font-size: 1.3rem; font-weight: 700; display: block; }
-.stage-btn .stage-name { display: block; margin-top: 3px; font-size: 0.75rem; }
-.stage-btn.pending { border-color: #E5E7EB; color: var(--muted); pointer-events: none; }
-.stage-btn.running { border-color: var(--primary); background: #E1EFFE; color: var(--primary); pointer-events: none; }
-.stage-btn.running .stage-num { animation: pulse 1.5s infinite; }
-.stage-btn.done { border-color: var(--success); background: #DEF7EC; color: var(--success); }
-.stage-btn.done:hover { background: #C6F6D5; }
-.stage-btn.failed { border-color: var(--accent); background: #FDE8E8; color: var(--accent); }
-.stage-btn.waiting { border-color: #E3A008; background: #FEF3C7; color: #92400E; }
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-.modal-overlay.active { display: flex; }
-.modal { background: var(--surface); border-radius: 12px; width: 90%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-.modal-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-.modal-header h2 { margin: 0; font-size: 1.1rem; }
-.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); }
-.modal-close:hover { color: var(--accent); }
-.modal-body { flex: 1; overflow: auto; }
-.modal-body iframe { width: 100%; height: 70vh; border: none; }
-.kill-dropdown { position: relative; display: inline-block; }
-.kill-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 100; min-width: 160px; }
-.kill-menu.show { display: block; }
-.kill-menu button { display: block; width: 100%; padding: 10px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.9rem; }
-.kill-menu button:hover { background: #F3F4F6; }
-.kill-menu button.danger:hover { background: #FDE8E8; color: var(--accent); }
+:root{
+--bg:#141917;--panel:#1b221f;--ink:#e5ebe8;--muted:#97a39e;--line:#2e3833;
+--accent:#e28a4a;--grid:#26302c;--soft:#222a26;--low:#6fa3e0;--ok:#5cc08a;--warn:#e8884d;
+--f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+--f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+color-scheme:dark
+}
+:root[data-theme="light"]{
+--bg:#f3f4f2;--panel:#ffffff;--ink:#1d2421;--muted:#5f6b66;--line:#d6dbd8;
+--accent:#c2611f;--grid:#e3e7e4;--soft:#eaedeb;--low:#2f6db3;--ok:#2f8a57;--warn:#b5541c;
+color-scheme:light
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));display:grid;gap:18px}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:8px 24px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.top h1{margin:0;font-size:22px;letter-spacing:.02em}
+.top p{margin:0;color:var(--muted);font-size:13px}
+.ver{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.step{background:var(--panel);border:1px solid var(--line);padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.step h2{margin:0;font-size:15px;display:flex;gap:10px;align-items:baseline}
+.step h2 .n{font-family:var(--f-mono);color:var(--accent);font-size:13px}
+.step .hint{font-size:12.5px;color:var(--muted);margin:0}
+
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:12px 14px}
+.bar .msg{font-size:13px;color:var(--muted);flex:1;min-width:200px}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
+@media(max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+.side{display:grid;gap:14px;align-content:start;min-width:0}
+
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px}
+.row label{display:inline-flex;gap:6px;align-items:center}
+select,input[type=text],input[type=number],textarea{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0}
+input[type=text],textarea{width:100%}
+textarea{resize:vertical;min-height:60px}
+.fld{display:grid;gap:3px;font-size:12px;color:var(--muted)}
+.btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mut{color:var(--muted)}.ok{color:var(--ok)}.wrn{color:var(--warn)}.ac{color:var(--accent)}.lo{color:var(--low)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+td{padding:3px 6px;border-bottom:1px solid var(--grid);vertical-align:top}
+td:first-child{white-space:nowrap}
+.gap-row{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--grid)}
+.gap-row:last-child{border-bottom:none}
+.gap-dot{width:6px;height:6px;background:var(--warn);margin-top:6px;flex-shrink:0}
+.kill-btn{position:relative;display:inline-block}
+.kill-menu{display:none;position:absolute;right:0;top:100%;background:var(--panel);border:1px solid var(--line);z-index:100;min-width:140px;margin-top:4px}
+.kill-menu.show{display:block}
+.kill-menu button{display:block;width:100%;padding:8px 14px;border:none;background:none;text-align:left;cursor:pointer;font:inherit;font-size:13px;color:var(--ink)}
+.kill-menu button:hover{background:var(--soft)}
+.kill-menu .danger:hover{color:var(--accent)}
+.modal-overlay{display:none;position:fixed;z-index:1000;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--panel);width:92%;max-width:1000px;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--line)}
+.modal-header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{margin:0;font-size:13px;letter-spacing:.06em}
+.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted)}
+.modal-body{flex:1;overflow:auto}
+.modal-body iframe{width:100%;height:75vh;border:none}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>💎 Diamond Marketing</h1>
-  <nav><a href="/">← 项目列表</a><a href="http://localhost:3333" target="_blank">Antfarm 进度 ↘</a></nav>
-</div>
-<div class="container"><div id="content"><span class="status-msg status-msg-info">加载中…</span></div></div>
+<div class="wrap" id="app"></div>
 <div class="modal-overlay" id="reportModal">
-  <div class="modal"><div class="modal-header"><h2 id="modalTitle"></h2><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><iframe id="reportFrame"></iframe></div></div>
+  <div class="modal"><div class="modal-header"><h2 id="modalTitle">階段報告</h2><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><iframe id="reportFrame"></iframe></div></div>
 </div>
-
 <script>
-const API = '', params = new URLSearchParams(location.search), projectId = params.get('id');
-if (!projectId) location.href = '/';
-const STAGE_MAP = { information:{num:1,name:'信息收集'}, insights:{num:2,name:'深度分析'}, goal:{num:3,name:'优先目标'}, initiative:{num:4,name:'沟通策略'}, implementation:{num:5,name:'执行建议'}, master:{num:6,name:'汇总报告'} };
-let currentRunId = null;
-
-function showMsg(text, type) { return `<div class="status-msg status-msg-${type}">${text}</div>`; }
-const badges = { draft:'badge-muted', running:'badge-success', waiting_data:'badge-warning', paused:'badge-warning', completed:'badge-success', failed:'badge-accent' };
-let gapsData = null;
-
-async function load() {
-  const [res,gapRes] = await Promise.all([
-    fetch(`${API}/api/projects/${projectId}`),
-    fetch(`${API}/api/projects/${projectId}/gaps`)
-  ]);
-  const data = await res.json();
-  if (!res.ok) { document.getElementById('content').innerHTML = showMsg(data.error,'error'); return; }
-  gapsData = gapRes.ok ? await gapRes.json() : {gaps:[]};
-  render(data);
+const API='',p=new URLSearchParams(location.search),pid=p.get('id');
+if(!pid)location.href='/';
+const SM={information:{n:1,nm:'信息收集'},insights:{n:2,nm:'深度分析'},goal:{n:3,nm:'優先目標'},initiative:{n:4,nm:'溝通策略'},implementation:{n:5,nm:'執行建議'},master:{n:6,nm:'匯總報告'}};
+let runId=null,gapsData=null;
+async function load(){
+  const[r1,r2]=await Promise.all([fetch(`${API}/api/projects/${pid}`),fetch(`${API}/api/projects/${pid}/gaps`)]);
+  const d=await r1.json();gapsData=r2.ok?await r2.json():{gaps:[]};render(d);
 }
+function render(data){
+  const{project,active_run,gate,stages,runs}=data;
+  if(active_run)runId=active_run.run_id;
+  const stColor=p=>p==='completed'?'ok':p==='running'?'lo':p==='failed'?'ac':'mut';
+  let h='';
 
-function render(data) {
-  const { project, active_run, gate, stages, runs, antfarm_dashboard } = data;
-  if (active_run) currentRunId = active_run.run_id;
-  let html = '';
-  html += `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-    <div><h2 style="margin:0;">${project.company} / ${project.product} <span class="badge ${badges[project.status]}">${project.status}</span></h2></div>
-    <div style="display:flex;gap:8px;"><button class="btn btn-sm btn-primary" onclick="location.reload()">🔄 刷新</button>
-      ${active_run ? `<div class="kill-dropdown"><button class="btn btn-sm btn-accent" onclick="document.querySelector('.kill-menu').classList.toggle('show')">⏹ 控制 ▾</button><div class="kill-menu"><button onclick="killAction('pause')">⏸ 暂停</button><button class="danger" onclick="killAction('terminate')">⏹ 终止</button></div></div>` : ''}
-    </div></div>
-    <div class="grid-2" style="margin-top:12px;">
-      <div><strong>目标市场：</strong>${project.target_market||'未指定'}</div><div><strong>业务模式：</strong>${project.business_model||'未指定'}</div>
-      <div><strong>预算：</strong>${project.budget_range||'未指定'}</div><div><strong>网站：</strong>${project.website?`<a href="${project.website}" target="_blank">${project.website}</a>`:'未指定'}</div>
-    </div>
-    <div style="margin-top:8px;"><strong>目标：</strong>${project.goals||'未指定'}</div>
-    ${active_run ? `<div style="margin-top:8px;font-size:0.85rem;color:var(--muted);">Run: ${active_run.run_id} · 开始: ${active_run.started_at||'-'} · 阶段: ${active_run.stage_reached||'待定'}</div>` : ''}
-  </div>`;
+  h+=`<div class="top"><div><h1>${project.company}／${project.product}</h1><p>${project.objective||''}${project.market?'　'+project.market:''}</p></div>
+    <span class="ver">${(project.created_at||'').slice(0,10)}　<span class="${stColor(project.status)}">${project.status}</span>${runId?'　'+runId.slice(0,12)+'…':''}</span></div>`;
 
-  if (stages && stages.length > 0) {
-    html += `<div class="card"><h2>📊 阶段进度</h2><div class="stage-row" style="margin-top:12px;">`;
-    stages.forEach(s => {
-      const info = STAGE_MAP[s.stage] || { num: '?', name: s.stage };
-      html += `<div class="stage-btn ${s.status}" ${s.status==='done' ? `onclick="openReport('${s.stage}')" title="点击查看报告"` : ''}>
-        <span class="stage-num">${s.status==='running'?'⋯':s.status==='done'?'✓':info.num}</span><span class="stage-name">${info.name}</span></div>`;
-    });
-    html += `</div></div>`;
-    const doneStages = stages.filter(s => s.status === 'done');
-    if (doneStages.length > 0 && active_run) {
-      html += `<div class="card"><h2>📄 阶段报告</h2>`;
-      doneStages.forEach(s => html += `<div style="margin-bottom:8px;">📎 <a href="javascript:openReport('${s.stage}')">${STAGE_MAP[s.stage]?.name||s.stage} 报告</a></div>`);
-      html += `</div>`;
-    }
+  h+=`<section class="steps">`;
+  h+=`<div class="step"><h2><span class="n">◆</span>專案資訊</h2>
+    <div style="display:grid;gap:4px;font-size:13px">`;
+  ['市場','目標','預算','網站'].forEach(k=>{const v=project[k==='目標'?'objective':k==='預算'?'budget':k==='網站'?'website':'market']||'—';
+    h+=`<div class="row"><span class="mut">${k}</span>${v}</div>`;});h+=`</div></div>`;
+
+  if(stages&&stages.length){
+    h+=`<div class="step"><h2><span class="n">${stages.filter(s=>s.status==='done').length}/${stages.length}</span>階段進度</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    stages.forEach(s=>{const i=SM[s.stage]||{n:'?',nm:s.stage};
+      const sel=s.status==='done',run=s.status==='running',fail=s.status==='failed';
+      h+=`<button class="btn" style="min-width:70px;text-align:center;padding:9px 12px;${sel?'border-color:var(--ok);cursor:pointer':run?'background:var(--ink);color:var(--bg);border-color:var(--ink)':fail?'border-color:var(--accent);opacity:.7':';opacity:.5'}" ${sel?`onclick="openReport('${s.stage}')" title="查看第${i.n}階段報告"`:'disabled'}>
+        <div style="font-family:var(--f-mono);font-size:15px;font-variant-numeric:tabular-nums">${run?'⋯':sel?'✓':i.n}</div>
+        <div style="font-size:10px;color:${run?'inherit':'var(--muted)'};margin-top:1px">${i.nm}</div></button>`;});
+    h+=`</div></div>`;
+  }
+  h+=`</section>`;
+
+  const doneStages=stages?stages.filter(s=>s.status==='done'):[];
+  if(doneStages.length&&active_run){
+    h+=`<div class="bar"><span class="msg">已產生 ${doneStages.length} 份階段報告</span>
+      ${doneStages.map(s=>`<button class="btn" style="font-size:12px;padding:4px 10px" onclick="openReport('${s.stage}')">第${SM[s.stage].n}階段</button>`).join('')}</div>`;
   }
 
-  // === 数据缺口面板 ===
-  if (gapsData && gapsData.gaps && gapsData.gaps.length > 0) {
-    html += `<div class="card"><h2>⚠️ 数据缺口 (${gapsData.gaps.length})</h2>
-      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">以下指标缺少实际数据，影响后续分析精度。补充后将自动接续工作流重新计算。</p>
-      <form id="gapForm">`;
-    gapsData.gaps.forEach(g => html += `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
-      <div style="width:8px;height:8px;border-radius:50%;background:var(--warning);flex-shrink:0;margin-top:5px;"></div>
-      <div style="flex:1;"><strong style="font-size:0.9rem;">${g.name||g.metric_id}</strong>
-        <span style="font-size:0.75rem;color:var(--muted);margin-left:8px;">${g.stage}</span>
-        <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;">${g.definition||g.note||''} ${g.formula?' · '+g.formula:''}</div></div>
-      <input style="width:140px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;" name="gap_${g.metric_id}" placeholder="${g.unit||'数值'}">
-    </div>`);
-    html += `<div style="margin-top:14px;display:flex;gap:8px;">
-      <button type="submit" class="btn btn-success">保存并接续工作流 ▶</button>
-      <span id="gapMsg" style="font-size:0.85rem;align-self:center;"></span></div></form></div>`;
+  let hasLeft=false,leftHTML='',rightHTML='';
+
+  if(gapsData&&gapsData.gaps&&gapsData.gaps.length){
+    hasLeft=true;
+    leftHTML+=`<div class="step"><h2><span class="n">${gapsData.gaps.length}</span>數據缺口</h2>
+      <p class="hint">補齊以下數據可接續工作流。</p>
+      <form id="gapForm" style="display:grid;gap:6px">`;
+    gapsData.gaps.forEach(g=>{
+      leftHTML+=`<div class="gap-row"><div class="gap-dot"></div>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${g.name||g.metric_id} <span class="mut">${g.stage||''}</span></div>
+        <p class="hint">${g.definition||g.note||''}${g.formula?' · '+g.formula:''}</p></div>
+        <input type="text" name="gap_${g.metric_id}" placeholder="${g.unit||'數值'}" style="width:110px;font-family:var(--f-mono);font-size:12px;padding:4px 6px"></div>`;});
+    leftHTML+=`<div class="row" style="margin-top:4px"><button type="submit" class="btn primary">保存並接續</button><span class="mut" id="gapMsg"></span></div></form></div>`;
   }
 
-  if (gate && gate.status === 'waiting') {
-    const missingFields = gate.missing_fields || [], knownInfo = gate.known_info || [];
-    html += `<div class="card"><h2>⚠️ 资料不足 — 请补充</h2>
-      <div id="gateKnown" style="margin-bottom:16px;padding:12px;background:#F3F4F6;border-radius:6px;font-size:0.9rem;">
-        <strong>已知信息：</strong><br>${knownInfo.map(f => `${f.field}: ${f.value} (${f.source})`).join(' · ') || '暂无'}</div>
-      <form id="gateForm">`;
-    missingFields.forEach(f => html += `<div class="missing-field-card">
-      <div class="field-label">${f.label} ${f.required ? '<span class="field-required">*</span>' : '<span class="field-optional">(选填)</span>'}</div>
-      <div class="field-reason">${f.reason}</div><div class="field-impact">影响: ${(f.impact||[]).join('、')}</div>
-      <div style="margin-top:8px;"><input type="${f.format==='number'?'number':'text'}" id="gate_${f.field}" placeholder="${f.unit?'单位: '+f.unit:''}" style="width:100%">
-      ${f.allow_unknown?`<label style="font-size:0.85rem;color:var(--muted);margin-top:4px;"><input type="checkbox" onchange="document.getElementById('gate_${f.field}').disabled=this.checked;document.getElementById('gate_${f.field}').value=this.checked?'未知':'';"> 不知道</label>`:''}</div></div>`);
-    html += `<div class="form-group"><label>补充说明</label><textarea id="gate_note" rows="2"></textarea></div>
-      <button type="submit" class="btn btn-success">提交补件并接续工作流 ▶</button></form><div id="gateMsg" style="margin-top:12px;"></div></div>`;
+  if(gate&&gate.status==='waiting'){
+    hasLeft=true;const mf=gate.missing_fields||[],ki=gate.known_info||[];
+    leftHTML+=`<div class="step"><h2><span class="n">▣</span>資料補件</h2>
+      <p class="hint">${ki.length?ki.map(f=>f.field+': '+f.value+' ('+f.source+')').join(' · '):'暫無已知資訊'}</p>
+      <form id="gateForm" style="display:grid;gap:10px">`;
+    mf.forEach(f=>leftHTML+=`<label class="fld">${f.label}${f.required?' <span class="ac">*</span>':''}
+      <input type="${f.format==='number'?'number':'text'}" id="gate_${f.field}" placeholder="${f.unit||''}">
+      ${f.allow_unknown?`<label class="row" style="margin-top:3px;cursor:pointer"><input type="checkbox" onchange="document.getElementById('gate_${f.field}').disabled=this.checked" style="accent-color:var(--accent)"><span class="mut">不確定</span></label>`:''}</label>`);
+    leftHTML+=`<label class="fld">補充說明<textarea id="gate_note" rows="2"></textarea></label>
+      <div class="row"><button type="submit" class="btn primary">提交補件並接續</button><span class="mut" id="gateMsg"></span></div></form></div>`;
   }
 
-  if (!active_run) {
-    html += `<div class="card"><h2>▶ 启动工作流</h2><button class="btn btn-primary" onclick="startWorkflow()">启动 Diamond-Marketing</button><div id="startMsg" style="margin-top:12px;"></div></div>`;
+  if(runs&&runs.length>1){
+    rightHTML+=`<div class="step"><h2><span class="n">${runs.length}</span>運行記錄</h2>
+      <div style="max-height:240px;overflow:auto"><table><thead><tr><td class="mut">Run</td><td class="mut">狀態</td><td class="mut">時間</td></tr></thead><tbody>${runs.map(r=>`<tr><td style="font-family:var(--f-mono)">${(r.run_id||'').slice(0,12)}…</td><td class="${stColor(r.status)}">${r.status}</td><td>${(r.started_at||'').slice(0,16)}</td></tr>`).join('')}</tbody></table></div></div>`;
   }
-  if (active_run) {
-    html += `<div class="card"><a href="/dashboard.html?id=${projectId}" class="btn btn-primary">📊 打开仪表板</a></div>`;
+
+  if(hasLeft||rightHTML){
+    h+=`<div class="main"><div style="display:grid;gap:14px;align-content:start">${leftHTML}</div><div class="side">${rightHTML}</div></div>`;
   }
-  html += `<div class="card"><a href="${antfarm_dashboard}" target="_blank" class="btn btn-muted">Antfarm Dashboard (3333)</a></div>`;
 
-  if (runs && runs.length > 1) {
-    html += `<div class="card"><h2>📜 历史</h2><table><tr><th>Run</th><th>状态</th><th>开始</th></tr>`;
-    runs.forEach(r => html += `<tr><td style="font-size:0.8rem;">${r.run_id.slice(0,14)}</td><td><span class="badge ${badges[r.status]}">${r.status}</span></td><td>${r.started_at||'-'}</td></tr>`);
-    html += `</table></div>`;
+  h+=`<div class="bar">`;
+  if((!active_run||(active_run&&active_run.status==='cancelled'))&&(!gate||gate.status!=='waiting')){
+    h+=`<button class="btn primary" onclick="startWorkflow()">啟動工作流 ▶</button><span class="mut" id="startMsg"></span>`;
   }
-  document.getElementById('content').innerHTML = html;
+  h+=`<span class="msg"><a href="/dashboard.html?id=${pid}" class="btn" style="font-size:12px;padding:4px 10px;border-color:var(--line)">打開儀表板 →</a>　<a href="http://localhost:3333" target="_blank" class="mut" style="font-size:12px">Antfarm 進度 ↗</a>`;
+  if(active_run&&active_run.status==='running'){
+    h+=`<div class="kill-btn"><button class="btn" style="border-color:var(--accent);color:var(--accent)" onclick="document.querySelector('.kill-menu').classList.toggle('show')">⏹ 控制</button>
+      <div class="kill-menu"><button onclick="killCtrl('pause')">⏸ 暫停</button><button class="danger" onclick="killCtrl('terminate')">⏹ 終止並重置</button></div></div>`;
+  }
+  h+=`</div>`;
 
-  // Gap form submission
-  const gff = document.getElementById('gapForm');
-  if (gff && gapsData) { gff.addEventListener('submit', async e => { e.preventDefault(); const d={}; gapsData.gaps.forEach(g=>{ const el=gff.querySelector(`[name="gap_${g.metric_id}"]`); if(el&&el.value)d[g.metric_id]=isNaN(el.value)?el.value:Number(el.value); });
-    const msg=document.getElementById('gapMsg'); msg.textContent='保存中…';
-    const res=await fetch(`${API}/api/projects/${projectId}/gaps`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-    const r=await res.json(); msg.textContent=res.ok?'✅ '+r.message:'❌ '+(r.error||'失败'); if(res.ok) setTimeout(()=>location.reload(),1500);
-  });}
-
-  const gf = document.getElementById('gateForm');
-  if (gf && gate) { gf.addEventListener('submit', async e => { e.preventDefault(); const btn = e.target.querySelector('button'); btn.disabled=true; btn.textContent='提交中…';
-    const fields={}; gate.missing_fields.forEach(f => { const el=document.getElementById(`gate_${f.field}`); fields[f.field]=el?el.value:''; }); fields.note=document.getElementById('gate_note')?.value||'';
-    const res=await fetch(`${API}/api/projects/${projectId}/gate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});
-    const result=await res.json();
-    document.getElementById('gateMsg').innerHTML = res.ok && result.status==='fulfilled' ? showMsg('✅ '+result.message,'success') : showMsg(result.errors?result.errors.map(e=>e.error).join('；'):(result.error||'提交失败'),'error');
-    if (res.ok) setTimeout(()=>location.reload(),2000); else { btn.disabled=false; btn.textContent='提交补件并接续工作流 ▶'; }
-  });}
-  document.addEventListener('click', e => { if (!e.target.closest('.kill-dropdown')) document.querySelector('.kill-menu')?.classList.remove('show'); });
+  document.getElementById('app').innerHTML=h;
+  const gf=document.getElementById('gapForm');
+  if(gf&&gapsData)gf.addEventListener('submit',async e=>{e.preventDefault();const d={};gapsData.gaps.forEach(g=>{const el=gf.querySelector(`[name="gap_${g.metric_id}"]`);if(el&&el.value)d[g.metric_id]=isNaN(el.value)?el.value:Number(el.value);});
+    const msg=document.getElementById('gapMsg');msg.textContent='保存中…';
+    const r=await fetch(`${API}/api/projects/${pid}/gaps`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    const j=await r.json();msg.textContent=r.ok?'已保存，接續中…':(j.error||'失敗');if(r.ok)setTimeout(load,1500);});
+  const gf2=document.getElementById('gateForm');
+  if(gf2&&gate)gf2.addEventListener('submit',async e=>{e.preventDefault();const btn=e.target.querySelector('button'),msg=document.getElementById('gateMsg');btn.disabled=true;msg.textContent='提交中…';
+    const fd={};gate.missing_fields.forEach(f=>{const el=document.getElementById('gate_'+f.field);if(el&&!el.disabled&&el.value)fd[f.field]=el.value;});
+    const note=document.getElementById('gate_note');if(note&&note.value)fd.note=note.value;
+    const r=await fetch(`${API}/api/projects/${pid}/gate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fd)});
+    const j=await r.json();msg.textContent=r.ok?'已提交，接續中…':(j.error||'失敗');if(r.ok)setTimeout(load,1500);else btn.disabled=false;});
+  document.addEventListener('click',e=>{if(!e.target.closest('.kill-btn'))document.querySelector('.kill-menu')?.classList.remove('show');});
 }
-
-function openReport(stage) {
-  if (!currentRunId) return;
-  const info = STAGE_MAP[stage] || { name: stage };
-  document.getElementById('modalTitle').textContent = `📄 第${info.num}阶段：${info.name}`;
-  document.getElementById('reportFrame').src = `/api/projects/${projectId}/report/${stage}`;
-  document.getElementById('reportModal').classList.add('active');
-}
-function closeModal() { document.getElementById('reportModal').classList.remove('active'); document.getElementById('reportFrame').src = ''; }
-document.getElementById('reportModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-
-async function startWorkflow() {
-  const msg=document.getElementById('startMsg'); msg.innerHTML=showMsg('启动中…','info');
-  const res=await fetch(`${API}/api/projects/${projectId}/start`,{method:'POST'});
-  const result=await res.json();
-  msg.innerHTML=res.ok?showMsg('✅ 已启动','success'):showMsg('❌ '+(result.error||result.message),'error');
-  if (res.ok) setTimeout(()=>location.reload(),1500);
-}
-
-async function killAction(action) {
-  document.querySelector('.kill-menu')?.classList.remove('show');
-  if (!confirm(action==='terminate'?'终止所有运行？不可恢复！':'暂停工作流？可随时 resume。')) return;
-  const res=await fetch(`${API}/api/projects/${projectId}/kill`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
-  const result=await res.json();
-  alert(result.message); setTimeout(()=>location.reload(),1000);
-}
+function openReport(stage){if(!runId)return;const i=SM[stage]||{n:'?',nm:stage};
+  document.getElementById('modalTitle').textContent=`第${i.n}階段：${i.nm}`;
+  document.getElementById('reportFrame').src=`${API}/api/projects/${pid}/report/${stage}`;
+  document.getElementById('reportModal').classList.add('active');}
+function closeModal(){document.getElementById('reportModal').classList.remove('active');document.getElementById('reportFrame').src='';}
+document.getElementById('reportModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+async function startWorkflow(){const msg=document.getElementById('startMsg');msg.textContent='啟動中…';
+  const r=await fetch(`${API}/api/projects/${pid}/start`,{method:'POST'});const d=await r.json();
+  msg.textContent=d.message||'已啟動';setTimeout(load,1500);}
+async function killCtrl(action){document.querySelector('.kill-menu')?.classList.remove('show');
+  if(!confirm(action==='terminate'?'終止所有運行並重置？':'暫停工作流？'))return;
+  const r=await fetch(`${API}/api/projects/${pid}/kill`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
+  alert((await r.json()).message);setTimeout(load,1000);}
 load();
-setInterval(() => { fetch(`${API}/api/projects/${projectId}`).then(r=>r.json()).then(d=>{ if(d.project?.status==='running') load(); }).catch(()=>{}); }, 15000);
 </script>
 </body>
 </html>

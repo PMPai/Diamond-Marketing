@@ -1,266 +1,381 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>💎 钻石营销仪表板</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分析儀表板 — Diamond Marketing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #F0EFEB; --card: #FAFAF8; --txt: #1C1C1A; --sub: #6B6B65;
-  --g1: #E8E7E2; --g2: #D4D3CD; --g3: #B8B7B0; --g4: #9A9992; --g5: #7A7973;
-  --g6: #55544F; --g7: #3A3A36;
-  --accent: #1A56DB; --success: #0E9F6E; --warn: #E3A008; --danger: #E0245E;
-  --radius: 20px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter',-apple-system,BlinkMacSystemFont,'Noto Sans SC',sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; }
-a { color: var(--accent); text-decoration: none; }
-.container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-.header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--g2); }
-.header h1 { font-size: 1.1rem; font-weight: 700; }
-.header nav a { font-size: 0.85rem; margin-left: 20px; font-weight: 500; color: var(--g6); }
-.header nav a:hover { color: var(--txt); }
-
-/* Cards */
-.card { background: var(--card); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
-.card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-.card .sub { font-size: 0.8rem; color: var(--sub); margin-bottom: 16px; }
-.card .src { font-size: 0.7rem; color: var(--g4); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 12px; }
-
-/* SVG charts */
-.chart-wrap { position: relative; width: 100%; }
-.chart-wrap svg { width: 100%; height: auto; display: block; }
-.mono-bar { fill: var(--g3); transition: width 0.6s cubic-bezier(0.23,1,0.32,1); }
-.mono-bar.highlight { fill: var(--g7); }
-.mono-tick { stroke: var(--g2); stroke-width: 0.5; }
-.mono-label { font-size: 10px; fill: var(--g4); font-weight: 500; }
-.mono-value { font-size: 11px; fill: var(--txt); font-weight: 700; }
-.mono-title { font-size: 12px; fill: var(--txt); font-weight: 600; }
-
-/* Stage buttons */
-.stage-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.stage-btn { flex: 1; min-width: 80px; padding: 12px 8px; border: 2px solid var(--g2); border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s; background: var(--card); font-size: 0.8rem; font-family: inherit; }
-.stage-btn:hover { transform: translateY(-2px); border-color: var(--g4); }
-.stage-btn .num { font-size: 1.2rem; font-weight: 800; display: block; }
-.stage-btn .name { display: block; margin-top: 3px; font-size: 0.72rem; color: var(--sub); }
-.stage-btn.pending { border-color: var(--g1); color: var(--g4); }
-.stage-btn.running { border-color: var(--accent); background: #E1EFFE; }
-.stage-btn.running .num { color: var(--accent); animation: pulse 1.5s infinite; }
-.stage-btn.done { border-color: var(--success); background: #DEF7EC; cursor: pointer; }
-.stage-btn.done .num { color: var(--success); }
-.stage-btn.done:hover { background: #C6F6D5; }
-.stage-btn.failed { border-color: var(--danger); background: #FDE8E8; }
-.stage-btn.failed .num { color: var(--danger); }
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-/* Gap cards */
-.gap-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--g1); }
-.gap-item:last-child { border-bottom: none; }
-.gap-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); flex-shrink: 0; margin-top: 4px; }
-.gap-info { flex: 1; }
-.gap-info strong { font-size: 0.9rem; }
-.gap-info .gap-desc { font-size: 0.8rem; color: var(--sub); margin-top: 2px; }
-.gap-input { width: 150px; padding: 8px 10px; border: 1px solid var(--g2); border-radius: 8px; font-size: 0.85rem; font-family: inherit; background: var(--card); }
-.gap-input:focus { outline: none; border-color: var(--accent); }
-
-/* Grid */
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-
-/* Buttons */
-.btn { display: inline-block; padding: 8px 16px; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
-.btn-accent { background: var(--txt); color: var(--bg); }
-.btn-accent:hover { opacity: 0.85; }
-.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-
-/* Kill dropdown */
-.kill-dropdown { position: relative; display: inline-block; }
-.kill-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--card); border: 1px solid var(--g2); border-radius: 8px; z-index: 100; min-width: 160px; }
-.kill-menu.show { display: block; }
-.kill-menu button { display: block; width: 100%; padding: 10px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.85rem; font-family: inherit; }
-.kill-menu button:hover { background: var(--g1); }
-.kill-menu button.danger:hover { background: #FDE8E8; color: var(--danger); }
-
-/* Modal */
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
-.modal-overlay.active { display: flex; }
-.modal { background: var(--card); border-radius: 16px; width: 92%; max-width: 1000px; max-height: 88vh; display: flex; flex-direction: column; }
-.modal-header { padding: 16px 24px; border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
-.modal-header h2 { margin: 0; font-size: 1rem; font-weight: 700; }
-.modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--g4); padding: 4px 8px; }
-.modal-close:hover { color: var(--danger); }
-.modal-body { flex: 1; overflow: auto; }
-.modal-body iframe { width: 100%; height: 75vh; border: none; }
-
-@media (max-width: 768px) { .grid2,.grid3 { grid-template-columns: 1fr; } .container { padding: 12px; } }
+:root{--bg:#f3f5f7;--panel:#fff;--navy:#10263f;--navy2:#183755;--ink:#182b3d;--muted:#607488;--line:#d7e0e6;--grid:#e9eef2;--soft:#eef4f5;--accent:#087e79;--accent-dark:#06635f;--orange:#e8792d;--red:#bd3947;--blue:#347bbd;--ok:#168677;--f-body:"Noto Sans TC","PingFang TC",system-ui,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace}
+*,*::before,*::after{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--f-body)}button{font-family:inherit}a{color:var(--accent)}:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.topbar{background:var(--navy);color:#fff;border-bottom:3px solid var(--accent)}.topbar-inner{max-width:1360px;margin:auto;min-height:68px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{font-size:19px;font-weight:700;letter-spacing:.02em;white-space:nowrap}.brand small{font:500 11px var(--f-mono);letter-spacing:.14em;color:#a6c9d3;display:block;margin-bottom:1px}.page-head nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.page-head nav a{display:inline-block;color:#d5e2e9;text-decoration:none;font-size:13px;padding:8px 12px;border-bottom:2px solid transparent}.page-head nav a:hover,.page-head nav a:focus-visible{color:#fff;border-color:var(--accent)}.page-head nav a.active{background:var(--accent);color:#fff}
+.wrap{max-width:1360px;margin:auto;padding:24px 16px 56px}.intro{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 18px}.intro h1{font-size:22px;letter-spacing:.02em;color:var(--navy);margin:0 0 3px}.intro p{font-size:13px;color:var(--muted);margin:0}.eyebrow{font:600 11px var(--f-mono);letter-spacing:.12em;color:var(--accent);margin:0 0 5px}.intro-note{font:12px var(--f-mono);color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);min-width:0;padding:14px;margin-bottom:18px}.card-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}.card-title{font-size:13px;font-weight:700;letter-spacing:.03em;color:var(--navy)}.card-count{font:600 12px var(--f-mono);color:var(--accent);white-space:nowrap}.card-sub,.chart-src{font-size:11px;color:var(--muted);margin:8px 0 0}.chart-src{padding-top:6px;border-top:1px solid var(--grid)}
+.meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 18px}.meta-row{min-width:0}.meta-label{display:block;font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:3px}.meta-val{display:block;font:600 12px/1.55 var(--f-mono);overflow-wrap:anywhere;color:var(--ink)}.meta-val a{color:var(--blue)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 18px}.kpi-card{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--navy);padding:10px 12px;text-align:left}.kpi-card:nth-child(3n+2){border-top-color:var(--accent)}.kpi-card:nth-child(3n){border-top-color:var(--orange)}.kpi-val{font:700 20px/1.3 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--navy);overflow-wrap:anywhere}.kpi-label{font-size:12px;color:var(--muted);margin-top:4px}
+.stage-tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);padding-bottom:0}.stage-tab{font:500 12px var(--f-body);padding:8px 14px;white-space:nowrap;border-bottom:3px solid transparent;color:var(--muted)}.stage-tab.done{color:var(--accent);cursor:pointer}.stage-tab.done:hover{background:var(--soft);border-color:var(--accent)}.stage-tab.running{color:var(--orange);border-color:var(--orange)}.stage-tab-num{font-family:var(--f-mono);margin-right:6px}
+.stage-tab{border-top:0;border-left:0;border-right:0;background:transparent}.stage-tab:disabled{opacity:1;cursor:default}.report-link{font:inherit;border:0;background:none;color:var(--blue);padding:0;text-align:left;cursor:pointer}.report-link:hover{text-decoration:underline}
+.main-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}.main-col,.side-col{min-width:0}.chart-wrap{position:relative}.chart-wrap svg{width:100%;height:auto;display:block}.diamond-wrap svg{display:block;max-width:560px;width:100%;margin:0 auto}.mono-label,.roi-bar-label{font:11px var(--f-mono);fill:var(--muted)}.mono-val,.roi-bar-val{font:600 11px var(--f-mono);fill:var(--ink)}.mono-title{font:700 13px var(--f-body);fill:var(--navy)}.roi-bar-fill{transition:width .4s ease}
+.btn{font:500 13px var(--f-body);padding:7px 14px;border:1px solid var(--navy);color:var(--navy);background:#fff;cursor:pointer;text-decoration:none;display:inline-block}.btn:hover{background:var(--soft)}.btn-sm{padding:4px 12px;font-size:12px}.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-dark)}.ctrl-bar{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center}.ctrl-group{display:flex;gap:0}.ctrl-label{font-size:12px;color:var(--muted)}.seg-btn{font:13px var(--f-body);background:#fff;border:1px solid var(--line);padding:6px 11px;color:var(--muted);cursor:pointer}.seg-btn+.seg-btn{border-left:0}.seg-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.badge{display:inline-block;font-size:11px;padding:1px 6px;border:1px solid currentColor;color:var(--muted)}.badge-ok{color:var(--ok)}.badge-warn{color:var(--orange)}.badge-low{color:var(--blue)}.msg{padding:10px 14px;border-left:3px solid var(--blue);background:#ecf3f9;margin-bottom:14px;font-size:13px}.msg-error{border-color:var(--red);background:#fdf1f2;color:#8f2835}.msg-success{border-color:var(--ok);background:#eff8f6}.table-wrap{max-height:420px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:12.5px}thead{position:sticky;top:0;background:var(--soft);z-index:1}th,td{padding:5px 8px;text-align:left;border-bottom:1px solid var(--grid)}th{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}td.num{text-align:right;font:12px var(--f-mono)}td.status-ok{color:var(--ok)}td.status-warn{color:var(--red)}tr:hover td{background:var(--soft)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(7,22,37,.62);z-index:1000;justify-content:center;align-items:center}.modal-overlay.active{display:flex}.modal{background:#fff;width:92%;max-width:1000px;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--line)}.modal-header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-header h2{font-size:14px;margin:0}.modal-close{border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}.modal-body{flex:1;overflow:auto}.modal-body iframe{width:100%;height:70vh;border:0;display:block}.kill-wrap{position:relative;display:inline-block}.kill-menu{display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid var(--line);z-index:100;min-width:160px}.kill-menu.show{display:block}.kill-menu button{display:block;width:100%;padding:10px 14px;border:0;background:#fff;text-align:left;cursor:pointer}.kill-menu button:hover{background:var(--soft)}.kill-menu button.danger:hover{color:var(--red)}
+@media(max-width:980px){.main-layout{grid-template-columns:1fr}.side-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:16px 12px 40px}.topbar-inner{align-items:flex-start;flex-direction:column;gap:4px}.brand{font-size:17px}.intro{align-items:start;flex-direction:column}.side-col{display:block}.kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}.meta-grid{grid-template-columns:1fr 1fr}.stage-tab{padding:7px 10px}}
+.metric-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}.metric-row{min-width:0}.metric-heading,.metric-meta{display:flex;justify-content:space-between;gap:10px}.metric-heading{font-size:12px;margin-bottom:6px}.metric-heading strong,.metric-meta span:last-child{font-family:var(--f-mono);font-variant-numeric:tabular-nums}.metric-track{height:9px;background:var(--soft);position:relative}.metric-fill{display:block;height:100%;background:var(--blue)}.metric-row:nth-child(3n+2) .metric-fill{background:var(--accent)}.metric-row:nth-child(3n) .metric-fill{background:var(--orange)}.metric-empty{position:absolute;top:-3px;left:4px;color:var(--muted);font-size:10px}.metric-meta{color:var(--muted);font-size:11px;margin-top:5px}@media(max-width:600px){.metric-list{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>💎 钻石营销仪表板</h1>
-  <nav><a href="/">← 项目列表</a><a href="http://localhost:3333">Antfarm ↗</a></nav>
-</div>
-<div class="container"><div id="app"></div></div>
+<header class="page-head topbar"><div class="topbar-inner"><div class="brand"><small>STRATEGY WORKSPACE / DM</small>Diamond Marketing</div><nav aria-label="主選單"><a href="/">項目列表</a><a href="#app" class="active" aria-current="page">分析儀表板</a><a href="http://localhost:3333" target="_blank" rel="noopener">工作流程 ↗</a></nav></div></header>
+<main class="wrap"><div class="intro"><div><p class="eyebrow">ANALYTICS / 專案決策</p><h1>分析儀表板</h1><p>策略脈絡、執行階段與關鍵指標，集中檢視。</p></div><div class="intro-note">DIAMOND MARKETING · ARC</div></div><div id="app"><div class="msg">載入中…</div></div></main>
 
+<!-- Report modal -->
 <div class="modal-overlay" id="reportModal">
-  <div class="modal"><div class="modal-header"><h2 id="modalTitle">阶段报告</h2><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><iframe id="reportFrame"></iframe></div></div>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">階段報告</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="reportFrame" title="階段報告"></iframe>
+    </div>
+  </div>
 </div>
 
 <script>
-const API='',params=new URLSearchParams(location.search),projectId=params.get('id');
-if(!projectId) location.href='/';
-const SM={information:{n:1,nm:'信息收集'},insights:{n:2,nm:'深度分析'},goal:{n:3,nm:'优先目标'},initiative:{n:4,nm:'沟通策略'},implementation:{n:5,nm:'执行建议'},master:{n:6,nm:'汇总报告'}};
-let runId=null;
+const API = '',
+      params = new URLSearchParams(location.search),
+      projectId = params.get('id');
+if (!projectId) location.href = '/';
 
-async function load(){
-  const dash=await fetch(`${API}/api/dashboard/${projectId}`).then(r=>r.json());
-  render(dash);
-}
+const STAGE_MAP = {
+  information:    { n: '01', nm: '資訊收集' },
+  insights:       { n: '02', nm: '深度分析' },
+  goal:           { n: '03', nm: '優先目標' },
+  initiative:     { n: '04', nm: '溝通策略' },
+  implementation: { n: '05', nm: '執行建議' },
+  master:         { n: '06', nm: '彙總報告' }
+};
+let runId = null;
 
-function render(data){
-  const {project,run,stages,dashboard_json,initiatives,scenarios,tasks,metrics}=data;
-  if(run) runId=run.run_id;
-  const dj=dashboard_json||{};
-  let h='';
-
-  // === HEADER ===
-  h+=`<div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-    <div><h2 style="margin:0;">${project.company} / ${project.product}</h2>
-    <div class="sub">${project.status} · ${run?run.run_id.slice(0,12)+'…':''}</div></div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-sm btn-accent" onclick="location.reload()" style="background:var(--g4);">↻ 刷新</button>
-      ${run?`<div class="kill-dropdown"><button class="btn btn-sm" style="background:var(--danger);color:#fff;" onclick="document.querySelector('.kill-menu').classList.toggle('show')">⏹ 控制 ▾</button>
-      <div class="kill-menu"><button onclick="kill('pause')">⏸ 暂停</button><button class="danger" onclick="kill('terminate')">⏹ 终止</button></div></div>`:''}
-    </div></div>`;
-
-  // === STAGE BUTTONS ===
-  if(stages&&stages.length>0){
-    h+=`<div class="card"><h2>阶段进度</h2><div class="stage-row" style="margin-top:12px;">`;
-    stages.forEach(s=>{const i=SM[s.stage]||{n:'?',nm:s.stage};
-      h+=`<div class="stage-btn ${s.status}" ${s.status==='done'?`onclick="openReport('${s.stage}')"`:''} title="${s.status==='done'?'点击查看报告':''}">
-        <span class="num">${s.status==='running'?'⋯':s.status==='done'?'✓':i.n}</span><span class="name">${i.nm}</span></div>`;});
-    h+=`</div></div>`;
-  }
-
-  // === MAIN GRID ===
-  h+=`<div class="grid2">`;
-
-  // --- Chart: Diamond Structure (ARC) ---
-  h+=`<div class="card"><h2>🔷 钻石营销结构</h2><div class="sub">ARC 系统 · 12 子任务分布</div>
-    <div class="chart-wrap" id="diamondChart"></div>
-    <div class="src">Diamond Marketing · ARC Framework · 方法论来源: Ch.7</div></div>`;
-
-  // --- Chart: Key Metrics ---
-  const showMetrics=metrics&&metrics.length>0?metrics:(dj.metrics||[]);
-  if(showMetrics.length>0){
-    const mv=[];
-    for(let i=0;i<Math.min(6,showMetrics.length);i++){
-      const m=showMetrics[i];mv.push({label:m.name||m.metric_id,val:m.value,mx:Math.max(m.value||0,m.planned||m.target||0),target:m.planned||m.target,unit:m.unit||''});
+async function load() {
+  try {
+    const response = await fetch(`${API}/api/dashboard/${encodeURIComponent(projectId)}`);
+    if (!response.ok) {
+      document.getElementById('app').innerHTML = `<div class="card"><div class="card-title-row"><span class="card-title">找不到專案資料</span></div><p style="color:var(--muted);margin:0 0 14px">這個專案可能已移除，請返回項目列表選擇現有專案。</p><a class="btn btn-primary" href="/">返回項目列表</a></div>`;
+      return;
     }
-    const maxVal=Math.max(...mv.map(v=>v.mx),1);
-    h+=`<div class="card"><h2>📊 关键指标</h2><div class="sub">${mv.length} 项指标 · 条长 = 实际值</div>
-      <div class="chart-wrap"><svg viewBox="0 0 360 ${mv.length*48+20}" id="metricBars"></svg></div>
-      <div class="src">Metrics · Stage 1-2 · ${new Date().toLocaleDateString()}</div></div>`;
-    // render after DOM
-    setTimeout(()=>{
-      const svg=document.getElementById('metricBars'); if(!svg)return;
-      let y=10;
-      mv.forEach((m,i)=>{
-        const g7shade=[`var(--g7)`,`var(--g6)`,`var(--g5)`,`var(--g4)`,`var(--g3)`,`var(--g2)`];
-        const w=Math.max(4,(m.val||0)/maxVal*300);
-        const tw=m.target?(m.target/maxVal*300):0;
-        svg.innerHTML+=`
-          <text x="2" y="${y+16}" class="mono-label">${m.label}</text>
-          <rect x="105" y="${y+6}" width="${w}" height="22" rx="4" fill="${g7shade[i]||'var(--g3)'}">
-            <animate attributeName="width" from="0" to="${w}" dur="0.6s" fill="freeze" calcMode="spline" keySplines="0.23 1 0.32 1"/></rect>
-          <text x="${w+112}" y="${y+22}" class="mono-value">${m.val!=null?m.val.toLocaleString()+m.unit:'⏳'}</text>
-          ${m.target?`<line x1="105" y1="${y+4}" x2="105" y2="${y+32}" stroke="var(--g4)" stroke-width="1" stroke-dasharray="3,2"/><text x="107" y="${y+36}" class="mono-label" style="font-size:8px;">目标:${m.target.toLocaleString()}</text>`:''}`;
-        y+=48;
-      });
-    },10);
+    const dash = await response.json();
+    if (!dash.project) throw new Error('伺服器未回傳專案資料');
+    render(dash);
+  } catch(e) {
+    document.getElementById('app').innerHTML =
+      `<div class="msg msg-error">無法載入儀表板：${escapeHtml(e.message)}</div>`;
   }
-
-  h+=`</div>`; // end grid2
-
-  // === ROI Scenarios ===
-  if(scenarios&&scenarios.length>0){
-    h+=`<div class="card"><h2>💰 ROI 情境分析</h2><div class="sub">${scenarios.length} 项 · 按方案分组</div>
-    <div class="chart-wrap"><svg viewBox="0 0 500 ${Math.max(80,scenarios.length*28+30)}" id="roiBars"></svg></div>
-    <div class="src">ROI Scenarios · Stage 3</div></div>`;
-    setTimeout(()=>{
-      const svg=document.getElementById('roiBars'); if(!svg)return;
-      const maxCost=Math.max(...scenarios.map(s=>Math.abs(s.cost||0)),1);
-      let y=15;
-      scenarios.forEach((s,i)=>{
-        const l=s.name||s.initiative_id; const cost=s.cost||0; const roi=((s.roi||0)*100).toFixed(0);
-        const w=Math.min(Math.abs(cost)/maxCost*280,280);
-        svg.innerHTML+=`
-          <text x="2" y="${y+11}" class="mono-label" style="font-size:8px;">${l.slice(0,20)}</text>
-          <rect x="110" y="${y+4}" width="${w}" height="12" rx="3" fill="${roi>0?'var(--success)':roi<0?'var(--danger)':'var(--g4)'}">
-            <animate attributeName="width" from="0" to="${w}" dur="0.5s" fill="freeze"/></rect>
-          <text x="${w+118}" y="${y+14}" class="mono-value" style="font-size:9px;">${roi}% · ${(cost/10000).toFixed(0)}万</text>`;
-        y+=28;
-      });
-    },10);
-  }
-
-  // === Tasks ===
-  if(tasks&&tasks.length>0){
-    h+=`<div class="card"><h2>📋 WBS 任务 (${tasks.length})</h2><div class="sub">${tasks.filter(t=>t.status!=='planned').length} 已启动</div>
-    <div style="max-height:200px;overflow:auto;margin-top:8px;">`;
-    tasks.slice(0,10).forEach(t=>h+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--g1);font-size:0.82rem;">
-      <span style="font-family:monospace;color:var(--g5);">${(t.task_id||'').slice(0,10)}</span>
-      <span style="flex:1;margin:0 10px;">${t.title}</span>
-      <span style="color:${t.status==='planned'?'var(--g4)':'var(--success)'}">${t.status}</span></div>`);
-    h+=`</div><div class="src">WBS · Stage 4</div></div>`;
-  }
-
-  if(!stages||stages.length===0) h+=`<div class="card"><div class="sub" style="text-align:center;padding:20px;">等待工作流产出… ⏳</div></div>`;
-
-  document.getElementById('app').innerHTML=h;
-
-  // Diamond chart
-  setTimeout(()=>renderDiamond(dj),20);
-
-  document.addEventListener('click',e=>{if(!e.target.closest('.kill-dropdown'))document.querySelector('.kill-menu')?.classList.remove('show');});
 }
 
-function renderDiamond(dj){
-  const el=document.getElementById('diamondChart'); if(!el)return;
-  const stages=['Attract','Relevance','Connect','Action','Retain','Refer'];
-  const colors=['var(--g7)','var(--g6)','var(--g5)','var(--g4)','var(--g3)','var(--g2)'];
-  const nodes=dj.diamond?.nodes||{};
-  el.innerHTML=`<svg viewBox="0 0 340 200">
-    <g transform="translate(170,100)">${stages.map((s,i)=>{
-      const a=(i/stages.length)*Math.PI*2-Math.PI/2; const r=75;
-      return `<circle cx="${Math.cos(a)*r}" cy="${Math.sin(a)*r}" r="18" fill="none" stroke="${colors[i]}" stroke-width="2.5"/>
-        <text x="${Math.cos(a)*r}" y="${Math.sin(a)*r+3}" text-anchor="middle" class="mono-label" style="font-size:7px;">${s}</text>
-        <text x="${Math.cos(a)*r}" y="${Math.sin(a)*r+14}" text-anchor="middle" style="font-size:6px;fill:var(--g4);">${(nodes[s]||'').slice(0,12)}</text>`;
-    }).join('')}
-      <circle cx="0" cy="0" r="12" fill="var(--g7)"/><text x="0" y="3" text-anchor="middle" style="font-size:7px;fill:var(--bg);font-weight:700;">💎</text>
-      ${stages.map((s,i)=>{
-        const a=(i/stages.length)*Math.PI*2-Math.PI/2;
-        return `<line x1="${Math.cos(a)*18}" y1="${Math.sin(a)*18}" x2="${Math.cos(a)*57}" y2="${Math.sin(a)*57}" stroke="${colors[i]}" stroke-width="1" stroke-dasharray="2,2"/>`;
+function escapeHtml(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function safeWebsite(v) {
+  if (!v) return '—';
+  try { const u = new URL(v); if (!['http:','https:'].includes(u.protocol)) return '—'; return `<a href="${escapeHtml(u.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(v)}</a>`; }
+  catch { return escapeHtml(v); }
+}
+function render(data) {
+  const { project, run, stages, dashboard_json, scenarios, tasks, metrics } = data;
+  if (run) runId = run.run_id;
+  const dj = dashboard_json || {};
+  let h = '';
+
+  // ── Project header card ──
+  h += `<div class="card">
+    <div class="card-title-row">
+      <span class="card-title">專案概覽</span>
+      <span class="card-count">${escapeHtml(project.status)}</span>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-row"><span class="meta-label">公司 / 產品</span><span class="meta-val">${escapeHtml(project.company)} / ${escapeHtml(project.product)}</span></div>
+      <div class="meta-row"><span class="meta-label">目標市場</span><span class="meta-val">${escapeHtml(project.target_market || '—')}</span></div>
+      <div class="meta-row"><span class="meta-label">業務模式</span><span class="meta-val">${escapeHtml(project.business_model || '—')}</span></div>
+      <div class="meta-row"><span class="meta-label">預算</span><span class="meta-val">${escapeHtml(project.budget_range || '—')}</span></div>
+      <div class="meta-row"><span class="meta-label">網站</span><span class="meta-val">${safeWebsite(project.website)}</span></div>
+      ${run ? `<div class="meta-row"><span class="meta-label">Run ID</span><span class="meta-val">${escapeHtml(run.run_id)}</span></div>` : ''}
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="location.reload()">↻ 刷新</button>
+      ${run ? `<div class="kill-wrap">
+        <button class="btn btn-sm" aria-label="工作流程控制" aria-expanded="false" onclick="toggleKillMenu(this)" style="border-color:var(--orange);color:var(--orange);">⏹ 控制 ▾</button>
+        <div class="kill-menu">
+          <button onclick="kill('pause')">⏸ 暫停</button>
+          <button class="danger" onclick="kill('terminate')">⏹ 終止</button>
+        </div>
+      </div>` : ''}
+    </div>
+  </div>`;
+
+  // ── Stage progress tabs ──
+  if (stages && stages.length > 0) {
+    h += `<div class="card">
+      <div class="card-title-row">
+        <span class="card-title">階段進度</span>
+        <span class="card-count">${stages.filter(s=>s.status==='done').length}/${stages.length}</span>
+      </div>
+      <div class="stage-tabs">`;
+    stages.forEach(s => {
+      const i = STAGE_MAP[s.stage] || { n: '?', nm: escapeHtml(s.stage) };
+      const cls = s.status === 'running' ? 'running' : s.status === 'done' ? 'done' : '';
+      const onclick = s.status === 'done' && STAGE_MAP[s.stage] ? `onclick="openReport('${s.stage}')"` : '';
+      h += `<button type="button" class="stage-tab ${cls}" ${onclick} ${onclick ? '' : 'disabled'} title="${s.status==='done'?'點擊查看報告':escapeHtml(s.stage)}">
+        <span class="stage-tab-num">${i.n}</span>${i.nm}
+      </button>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // ── KPI row ──
+  const showMetrics = metrics && metrics.length > 0 ? metrics : (dj.metrics || []);
+  if (showMetrics.length > 0) {
+    h += `<div class="kpi-row">`;
+    showMetrics.slice(0, 6).forEach(m => {
+      const v = m.value != null ? m.value.toLocaleString() + (m.unit || '') : '—';
+      const label = m.name || m.metric_id || '';
+      h += `<div class="kpi-card">
+        <div class="kpi-val">${escapeHtml(v)}</div>
+        <div class="kpi-label">${escapeHtml(label)}</div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  // ── Main layout: chart + sidebar ──
+  h += `<div class="main-layout">`;
+  h += `<div class="main-col">`;
+
+  // ── Diamond chart ──
+  h += `<div class="card">
+    <div class="card-title-row">
+      <span class="card-title">鑽石營銷結構 · ARC 系統</span>
+    </div>
+    <div class="diamond-wrap" id="diamondChart"></div>
+    <div class="chart-src">Diamond Marketing · ARC Framework · Ch.7</div>
+  </div>`;
+
+  // ── Metrics bar chart ──
+  if (showMetrics.length > 0) {
+    const mv = showMetrics.slice(0, 6).map(m => ({
+      label: m.name || m.metric_id || '指標',
+      val: Number.isFinite(Number(m.value)) && m.value !== null ? Number(m.value) : null,
+      target: Number(m.target ?? m.planned) > 0 ? Number(m.target ?? m.planned) : null,
+      unit: m.unit || ''
+    }));
+    h += `<div class="card">
+      <div class="card-title-row"><span class="card-title">關鍵指標 · 目標達成</span><span class="card-count">${mv.length} 項</span></div>
+      <div class="metric-list">${mv.map(m => {
+        const ratio = m.val !== null && m.target ? Math.max(0, Math.min(100, m.val / m.target * 100)) : null;
+        const label = m.val !== null ? `${m.val.toLocaleString()}${m.unit}` : '尚無數據';
+        const target = m.target ? `目標 ${m.target.toLocaleString()}${m.unit}` : '未設定目標';
+        return `<div class="metric-row"><div class="metric-heading"><span>${escapeHtml(m.label)}</span><strong>${escapeHtml(label)}</strong></div>
+          <div class="metric-track">${ratio !== null ? `<span class="metric-fill" style="width:${ratio}%"></span>` : `<span class="metric-empty">${m.val === null ? '尚無資料' : '無目標基準'}</span>`}</div>
+          <div class="metric-meta"><span>${escapeHtml(target)}</span>${ratio !== null ? `<span>${Math.round(m.val / m.target * 100)}% 達成</span>` : ''}</div></div>`;
+      }).join('')}</div>
+      <div class="chart-src">各指標分別相對自身目標呈現；缺少資料不視為零。</div></div>`;
+  }
+
+  // ── ROI scenarios ──
+  if (scenarios && scenarios.length > 0) {
+    const maxCost = Math.max(...scenarios.map(s => Math.abs(s.cost || 0)), 1);
+    const svgH = scenarios.length * 28 + 20;
+    h += `<div class="card">
+      <div class="card-title-row">
+        <span class="card-title">ROI 情境分析</span>
+        <span class="card-count">${scenarios.length} 項</span>
+      </div>
+      <div class="chart-wrap"><svg viewBox="0 0 500 ${svgH}" id="roiBars"></svg></div>
+      <div class="chart-src">ROI Scenarios · Stage 3</div>
+    </div>`;
+    setTimeout(() => {
+      const svg = document.getElementById('roiBars');
+      if (!svg) return;
+      let y = 14;
+      scenarios.forEach((s, i) => {
+        const l    = escapeHtml(String(s.name || s.initiative_id || '').slice(0, 20));
+        const cost = Number(s.cost) || 0;
+        const roi  = ((Number(s.roi) || 0) * 100).toFixed(0);
+        const w    = Math.min(Math.abs(cost) / maxCost * 280, 280);
+        const col  = roi > 0 ? 'var(--accent)' : roi < 0 ? 'var(--red)' : 'var(--muted)';
+        svg.innerHTML += `
+          <text x="2" y="${y+10}" class="roi-bar-label">${l}</text>
+          <rect x="112" y="${y+3}" width="${w}" height="12" rx="0" fill="${col}" class="roi-bar-fill">
+            <animate attributeName="width" from="0" to="${w}" dur=".5s" fill="freeze"/>
+          </rect>
+          <text x="${w+118}" y="${y+13}" class="roi-bar-val">${roi}% · ${(cost/10000).toFixed(0)}萬</text>`;
+        y += 28;
+      });
+    }, 20);
+  }
+
+  // ── Tasks table ──
+  if (tasks && tasks.length > 0) {
+    const activeTasks = tasks.filter(t => t.status !== 'planned');
+    h += `<div class="card">
+      <div class="card-title-row">
+        <span class="card-title">WBS 任務</span>
+        <span class="card-count">${activeTasks.length} / ${tasks.length} 已啟動</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>任務 ID</th><th>標題</th><th>狀態</th></tr></thead>
+          <tbody>`;
+    tasks.slice(0, 20).forEach((t, i) => {
+      const statusCls = t.status === 'planned' ? 'status-planned' : 'status-ok';
+      h += `<tr>
+        <td class="num">${i+1}</td>
+        <td class="num">${escapeHtml(String(t.task_id||'').slice(0,12))}</td>
+        <td>${escapeHtml(t.title || '—')}</td>
+        <td class="${statusCls}">${escapeHtml(t.status)}</td>
+      </tr>`;
+    });
+    h += `</tbody></table>
+      </div>
+      <div class="chart-src">WBS · Stage 4</div>
+    </div>`;
+  }
+
+  h += `</div>`; // end main-col
+
+  // ── Sidebar ──
+  h += `<div class="side-col">`;
+
+  // Done stage reports
+  if (stages && stages.length > 0) {
+    const doneStages = stages.filter(s => s.status === 'done');
+    if (doneStages.length > 0) {
+      h += `<div class="card">
+        <div class="card-title-row">
+          <span class="card-title">階段報告</span>
+        </div>`;
+      doneStages.forEach(s => {
+        const i = STAGE_MAP[s.stage] || { n: '?', nm: s.stage };
+        if (!STAGE_MAP[s.stage]) return;
+        h += `<div style="padding:6px 0;border-bottom:1px solid var(--grid);font-size:13px;">
+          <button class="report-link" type="button" onclick="openReport('${s.stage}')">
+            ${i.n} ${i.nm} 報告 →
+          </button>
+        </div>`;
+      });
+      h += `</div>`;
+    }
+  }
+
+  // Control bar
+  if (run) {
+    h += `<div class="card">
+      <div class="card-title-row">
+        <span class="card-title">檢視控制</span>
+      </div>
+      <div class="ctrl-bar">
+        <span class="ctrl-label">刷新</span>
+        <div class="ctrl-group">
+          <button class="seg-btn active" id="ctrlAuto" onclick="setAutoRefresh(true)">自動</button>
+          <button class="seg-btn" id="ctrlManual" onclick="setAutoRefresh(false)">手動</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  h += `</div>`; // end side-col
+  h += `</div>`; // end main-layout
+
+  // ── Empty state ──
+  if ((!stages || stages.length === 0) && !run) {
+    h += `<div class="card">
+      <div style="text-align:center;padding:40px 16px;color:var(--muted);font-size:13px;">
+        等待工作流啟動…
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('app').innerHTML = h;
+
+  // Render diamond chart
+  setTimeout(() => renderDiamond(dj), 20);
+
+  // Close dropdown on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.kill-wrap')) {
+      document.querySelector('.kill-menu')?.classList.remove('show');
+    }
+  });
+}
+
+function renderDiamond(dj) {
+  const el = document.getElementById('diamondChart');
+  if (!el) return;
+  const stages_ = ['Attract','Relevance','Connect','Action','Retain','Refer'];
+  const colors  = ['#183755','#347bbd','#087e79','#e8792d','#087e79','#347bbd'];
+  const nodes   = dj.diamond?.nodes || {};
+  el.innerHTML = `<svg viewBox="0 0 340 200">
+    <g transform="translate(170,100)">
+      ${stages_.map((s, i) => {
+        const a = (i / stages_.length) * Math.PI * 2 - Math.PI / 2;
+        const r = 75;
+        return `<circle cx="${(Math.cos(a)*r).toFixed(2)}" cy="${(Math.sin(a)*r).toFixed(2)}" r="18" fill="none" stroke="${colors[i]}" stroke-width="2.5"/>
+          <text x="${(Math.cos(a)*r).toFixed(2)}" y="${(Math.sin(a)*r + 3).toFixed(2)}" text-anchor="middle" style="font-size:7px;fill:#10263f;font-weight:600;font-family:var(--f-mono)">${s}</text>
+          <text x="${(Math.cos(a)*r).toFixed(2)}" y="${(Math.sin(a)*r + 13).toFixed(2)}" text-anchor="middle" style="font-size:6px;fill:#607488">${escapeHtml(String(nodes[s]||'').slice(0,12))}</text>`;
       }).join('')}
-    </g></svg>`;
+      <circle cx="0" cy="0" r="12" fill="#10263f"/>
+      <text x="0" y="3" text-anchor="middle" style="font-size:7px;fill:#ffffff;font-weight:700;">ARC</text>
+      ${stages_.map((s, i) => {
+        const a = (i / stages_.length) * Math.PI * 2 - Math.PI / 2;
+        return `<line x1="${(Math.cos(a)*18).toFixed(2)}" y1="${(Math.sin(a)*18).toFixed(2)}" x2="${(Math.cos(a)*57).toFixed(2)}" y2="${(Math.sin(a)*57).toFixed(2)}" stroke="${colors[i]}" stroke-width="1" stroke-dasharray="2,2"/>`;
+      }).join('')}
+    </g>
+  </svg>`;
 }
 
-function openReport(stage){if(!runId)return;const i=SM[stage]||{n:'?',nm:stage};
-  document.getElementById('modalTitle').textContent=`📄 第${i.n}阶段：${i.nm}`;
-  document.getElementById('reportFrame').src=`/api/projects/${projectId}/report/${stage}`;
-  document.getElementById('reportModal').classList.add('active');}
-function closeModal(){document.getElementById('reportModal').classList.remove('active');document.getElementById('reportFrame').src='';}
-document.getElementById('reportModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+function openReport(stage) {
+  if (!runId) return;
+  const i = STAGE_MAP[stage] || { n: '?', nm: stage };
+  document.getElementById('modalTitle').textContent = `${i.n} ${i.nm}`;
+  document.getElementById('reportFrame').src = `/api/projects/${encodeURIComponent(projectId)}/report/${encodeURIComponent(stage)}`;
+  document.getElementById('reportModal').classList.add('active');
+}
 
-async function kill(action){
+function closeModal() {
+  document.getElementById('reportModal').classList.remove('active');
+  document.getElementById('reportFrame').src = '';
+}
+function toggleKillMenu(button) {
+  const open = document.querySelector('.kill-menu').classList.toggle('show');
+  button.setAttribute('aria-expanded', String(open));
+}
+document.getElementById('reportModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+async function kill(action) {
   document.querySelector('.kill-menu')?.classList.remove('show');
-  if(!confirm(action==='terminate'?'终止所有运行？':'暂停工作流？可随时 resume。'))return;
-  const res=await fetch(`${API}/api/projects/${projectId}/kill`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
-  alert((await res.json()).message);setTimeout(()=>location.reload(),1000);}
+  if (!confirm(action === 'terminate' ? '終止所有運行？' : '暫停工作流？可隨時 resume。')) return;
+  const res = await fetch(`${API}/api/projects/${encodeURIComponent(projectId)}/kill`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action })
+  });
+  alert((await res.json()).message);
+  setTimeout(() => location.reload(), 1000);
+}
+
+let autoRefresh = true;
+function setAutoRefresh(on) {
+  autoRefresh = on;
+  document.getElementById('ctrlAuto')?.classList.toggle('active', on);
+  document.getElementById('ctrlManual')?.classList.toggle('active', !on);
+}
 
 load();
-setInterval(()=>{fetch(`${API}/api/projects/${projectId}`).then(r=>r.json()).then(d=>{if(d.project?.status==='running')load();}).catch(()=>{});},20000);
+setInterval(() => {
+  if (!autoRefresh) return;
+  fetch(`${API}/api/projects/${encodeURIComponent(projectId)}`)
+    .then(r => r.json())
+    .then(d => { if (d.project?.status === 'running') load(); })
+    .catch(() => {});
+}, 20000);
 </script>
 </body>
 </html>

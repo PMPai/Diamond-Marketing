@@ -1,129 +1,635 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diamond Marketing — 项目列表</title>
-<link rel="stylesheet" href="/css/style.css">
+<title>Diamond Marketing — 項目列表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════
+   PAI-Dashboard-Design-2 · Engineering Style
+   嚴格遵從 skill 數值：間距/字號/間距全數比對原文
+════════════════════════════════════════════════════════════ */
+
+/* ── 1. 語義顏色令牌 ── */
+:root {
+  --bg:     #f3f4f2;   /* 綠調淺灰——頁面底色 */
+  --panel:  #ffffff;   /* 純白——卡片/容器 */
+  --ink:    #1d2421;   /* 深綠黑——主文字、主要線條 */
+  --muted:  #5f6b66;   /* 次級灰——說明/軸/標籤 */
+  --line:   #d6dbd8;   /* 卡片/控件邊框 */
+  --accent: #c2611f;   /* 銅橙——主要操作/活動頁簽 */
+  --grid:   #e3e7e4;   /* 圖表網格/表格行線 */
+  --soft:   #eaedeb;   /* 表頭/懸停/選中底色 */
+  --low:    #2f6db3;   /* 偏低標籤/藍曲線 */
+  --ok:     #2f8a57;   /* 成功日誌 */
+  --warn:   #b5541c;   /* 異常/下降標籤 */
+}
+
+/* ── 2. 字體令牌 ── */
+:root {
+  --f-body: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono: "JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;       /* 正文 14px */
+  line-height: 1.55;     /* 行高 1.55 */
+}
+
+/* ── 3. 頁面外框——1360px 居中，上下 20px/48px，左右至少 16px ── */
+.wrap {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   4. 頁面頂部橫幅
+   標題左 + 導航，右侧工程元數據（KPI 卡片一排）
+═════════════════════════════════════════════════════════ */
+.page-head {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: end;
+  gap: 0 24px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--ink);   /* 2px 深線底邊 */
+  margin-bottom: 18px;
+}
+
+.brand {
+  font-size: 22px;          /* 頁面標題 22px */
+  font-weight: 700;
+  letter-spacing: .02em;    /* 字距 .02em */
+  white-space: nowrap;
+}
+.brand span { color: var(--accent); }
+
+.head-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 2px;
+}
+.head-nav a {
+  font-size: 13px;          /* 副標題 13px */
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  display: inline-block;
+  line-height: 1.8;
+}
+.head-nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* ── 右側工程元數據 KPI ── */
+.head-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));  /* 150px min, gap 10px */
+  gap: 10px;
+  align-self: center;
+}
+.head-kpi {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 10px 12px;        /* KPI 內邊距 10px 12px */
+  text-align: center;
+}
+.head-kpi-val {
+  font-family: var(--f-mono);
+  font-size: 20px;           /* KPI 值 20px */
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  line-height: 1;
+}
+.head-kpi-label {
+  font-size: 12px;           /* KPI 標籤 12px */
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   5. 區塊標題列
+   左側大標題 + 右側序號（等寬字）
+═════════════════════════════════════════════════════════ */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.section-head h2 {
+  font-size: 13px;           /* 圖表卡片標題 13px */
+  font-weight: 700;
+  letter-spacing: .06em;    /* 標題字距 .06em */
+  color: var(--ink);
+}
+.section-seq {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════════════════
+   6. 卡片（面板）——直角、1px 結構邊框、零陰影
+═════════════════════════════════════════════════════════ */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);   /* 1px 結構邊框 */
+  border-radius: 0;                /* 零圓角 */
+  box-shadow: none;                /* 零陰影 */
+  padding: 14px;
+  margin-bottom: 18px;             /* 區塊間距 18px */
+  min-width: 0;
+}
+
+/* 卡片標題欄：內邊距 10px 12px，底部 1px 分隔線 */
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+.card-count {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+/* ══════════════════════════════════════════════════════════
+   7. 表單
+   字段標籤：12px 次級色，與字段 gap 3px
+   輸入框：padding 4px 6px，1px line 色邊框，寬 100%
+   表單格線：grid gap 縱向 16px（縱向網格間距）
+═════════════════════════════════════════════════════════ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 18px;                 /* 縱向 16px，橫向 18px */
+}
+.form-grid .full { grid-column: 1 / -1; }
+
+.field { display: flex; flex-direction: column; gap: 3px; }  /* 標籤與字段 gap 3px */
+
+.field label {
+  font-size: 12px;               /* 字段標籤 12px */
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+.field label .req { color: var(--accent); margin-left: 2px; }
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  font-family: var(--f-body);
+  font-size: 13px;               /* 輸入框文字 13px */
+  padding: 4px 6px;              /* 輸入框內邊距 4px 6px */
+  border: 1px solid var(--line); /* 1px line 色邊框 */
+  border-radius: 0;              /* 直角 */
+  background: var(--bg);
+  color: var(--ink);
+  transition: border-color .15s;
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+.field input::placeholder,
+.field textarea::placeholder { color: var(--muted); }
+.field textarea { min-height: 70px; resize: vertical; }
+
+/* ══════════════════════════════════════════════════════════
+   8. 按鈕
+   普通按鈕：padding 7px 14px，1px ink 色邊框，面板底色
+   主要按鈕：accent 背景與邊框、白字
+   小按鈕：padding 4px 12px，細線框
+═════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-block;
+  font-family: var(--f-body);
+  font-size: 13px;               /* 按鈕 13px */
+  font-weight: 500;
+  padding: 7px 14px;             /* 按鈕內邊距 7px 14px */
+  border: 1px solid var(--ink);  /* 1px 主文字色邊框 */
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  box-shadow: none;
+  line-height: 1.4;
+}
+.btn:hover { background: var(--soft); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 500;
+}
+.btn-primary:hover { background: #a8511b; border-color: #a8511b; }
+
+.btn-sm {
+  font-size: 13px;
+  padding: 4px 12px;             /* 小按鈕 4px 12px */
+}
+
+/* ══════════════════════════════════════════════════════════
+   9. 狀態標籤
+   11px，padding 0 6px，左間距 4px，1px currentColor 邊框
+═════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  font-size: 11px;               /* 狀態標籤 11px */
+  padding: 0 6px;               /* 狀態標籤 padding 0 6px */
+  border: 1px solid currentColor;
+  color: var(--muted);
+  margin-left: 4px;             /* 左間距 4px */
+  line-height: 1.6;
+}
+.badge-draft     { color: var(--muted); }
+.badge-running   { color: var(--accent); border-color: var(--accent); background: #fdf3ee; }
+.badge-completed { color: var(--ok); border-color: var(--ok); background: #edf7f2; }
+.badge-failed    { color: var(--warn); border-color: var(--warn); background: #fdf0ea; }
+.badge-waiting   { color: #92600a; border-color: #d4a017; background: #fef9ec; }
+
+/* ══════════════════════════════════════════════════════════
+   10. 狀態提示訊息
+═════════════════════════════════════════════════════════ */
+.msg {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-left: 3px solid;
+  margin-bottom: 14px;
+}
+.msg-info    { background: #eef4ff; border-color: var(--low);  color: #1a3a6b; }
+.msg-success { background: #edf7f2; border-color: var(--ok);   color: #14522b; }
+.msg-error   { background: #fdf0ea; border-color: var(--warn); color: #6b1e0a; }
+.msg-warning { background: #fef9ec; border-color: #d4a017;     color: #6b4a0a; }
+
+/* ══════════════════════════════════════════════════════════
+   11. 表格（歷史記錄）
+   寬 100%，合併邊框，容器最大高 420px，溢出滾動
+   表頭 sticky，soft 底色，次級文字
+   單元格 padding 5px 8px，底部 1px 網格線
+   選中行：soft 底色 + inset 3px 0 0 accent 左標記
+═════════════════════════════════════════════════════════ */
+.table-wrap { max-height: 420px; overflow-y: auto; overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;             /* 表格 12.5px */
+}
+
+thead { position: sticky; top: 0; background: var(--soft); z-index: 1; }
+
+th {
+  font-size: 12px;               /* 表頭 12px */
+  font-weight: 500;              /* 表頭 500 */
+  color: var(--muted);
+  padding: 5px 8px;             /* 單元格 padding 5px 8px */
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  user-select: none;
+}
+
+td {
+  padding: 5px 8px;             /* 單元格 padding 5px 8px */
+  border-bottom: 1px solid var(--grid);  /* 底部 1px 網格線 */
+  font-variant-numeric: tabular-nums;
+}
+td.num { font-family: var(--f-mono); text-align: right; color: var(--muted); font-size: 12px; }
+td.status-ok    { color: var(--ok); }
+td.status-warn  { color: var(--warn); }
+td.status-muted { color: var(--muted); }
+
+tr:hover td { background: var(--soft); }
+tr.sel td    { background: #fdf3ee; box-shadow: inset 3px 0 0 var(--accent); }
+
+/* ══════════════════════════════════════════════════════════
+   12. 操作列（表單卡片底部）
+   內邊距 12px 14px，gap 10px
+═════════════════════════════════════════════════════════ */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   13. 響應式
+═════════════════════════════════════════════════════════ */
+@media (max-width: 980px) {
+  .page-head { grid-template-columns: auto 1fr; }
+  .head-kpis { display: none; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .wrap { padding: 12px 12px 40px; }
+  .brand { font-size: 18px; }
+  .page-head { grid-template-columns: auto; gap: 8px; }
+}
+/* Diamond Marketing 色彩與資訊架構：延續工程儀表板的直角、細框及等寬數字。 */
+:root { --bg:#f3f5f7; --ink:#182b3d; --muted:#607488; --line:#d7e0e6; --grid:#e9eef2; --soft:#eef4f5; --accent:#087e79; --low:#347bbd; --ok:#087e79; --warn:#e8792d; --navy:#10263f; --error:#bd3947; }
+.page-head { border-bottom-color:var(--navy); }
+.msg-error { background:#fdf1f2; border-color:var(--error); color:#8f2835; }
+.page-head { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.head-nav { flex-direction:row; flex-wrap:wrap; gap:4px 14px; margin-top:4px; }
+.head-kpis { grid-template-columns:repeat(4,minmax(100px,1fr)); flex:0 1 530px; }
+.section-head h2,.brand { color:var(--navy); }
+.brand span { color:var(--accent); }
+.progress-intro { color:var(--muted); font-size:13px; margin-bottom:14px; }
+.workflow-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.workflow-step { border:1px solid var(--line); padding:12px; min-width:0; background:var(--panel); }
+.workflow-no { font:600 12px var(--f-mono); color:var(--accent); letter-spacing:.06em; }
+.workflow-step h3 { font-size:14px; color:var(--navy); margin:6px 0 4px; }
+.workflow-step p { font-size:12px; color:var(--muted); line-height:1.6; }
+.workflow-note { border-left:3px solid var(--low); background:var(--soft); padding:10px 12px; margin-top:14px; font-size:12px; color:var(--ink); }
+@media (max-width:980px) { .workflow-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:980px) { .head-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media (max-width:600px) { .workflow-grid { grid-template-columns:1fr; } .page-head { align-items:stretch; flex-direction:column; } .head-kpis { width:100%; flex:none; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; } .head-kpi{padding:8px 3px;} }
+</style>
 </head>
 <body>
-<div class="header">
-  <h1>💎 Diamond Marketing</h1>
-  <nav>
-    <a href="/">项目列表</a>
-    <a href="http://localhost:3333" target="_blank">Antfarm 进度 ↘</a>
-  </nav>
-</div>
+<div class="wrap">
 
-<div class="container">
-  <!-- New Project Form -->
-  <div class="card">
-    <h2>➕ 新建项目</h2>
-    <form id="createForm">
-      <div class="grid-2">
-        <div class="form-group">
-          <label>公司名称 <span class="field-required">*</span></label>
-          <input type="text" id="company" required placeholder="例如：Apple Inc.">
-        </div>
-        <div class="form-group">
-          <label>产品名称 <span class="field-required">*</span></label>
-          <input type="text" id="product" required placeholder="例如：iPhone 17 Pro">
-        </div>
-        <div class="form-group">
-          <label>官方网站</label>
-          <input type="url" id="website" placeholder="https://www.example.com">
-        </div>
-        <div class="form-group">
-          <label>目标市场</label>
-          <input type="text" id="target_market" placeholder="例如：中国大陆、一线城市">
-        </div>
+  <!-- ═══ 頁面頂部橫幅 ═══ -->
+  <header class="page-head">
+    <div>
+      <div class="brand"><span>Diamond</span> Marketing</div>
+      <nav class="head-nav" aria-label="主選單">
+        <a href="#createForm">建立項目</a>
+        <a href="#workflow-guide">流程說明</a>
+        <a href="#recordList">過往記錄</a>
+        <a href="http://localhost:3333" target="_blank" rel="noopener noreferrer">工作流程 ↗</a>
+      </nav>
+    </div>
+    <!-- 右側 KPI 卡片（工程元數據风格） -->
+    <div class="head-kpis" id="headKpis">
+      <div class="head-kpi">
+        <div class="head-kpi-val" id="kpiTotal">—</div>
+        <div class="head-kpi-label">總項目</div>
       </div>
-      <div class="form-group">
-        <label>业务模式</label>
-        <input type="text" id="business_model" placeholder="例如：B2C 直营电商">
+      <div class="head-kpi">
+        <div class="head-kpi-val" id="kpiRunning">—</div>
+        <div class="head-kpi-label">進行中</div>
       </div>
-      <div class="form-group">
-        <label>希望改善的经营问题 &amp; 营销目标</label>
-        <textarea id="goals" placeholder="例如：提升品牌知名度、增加线上转化率 20%"></textarea>
+      <div class="head-kpi">
+        <div class="head-kpi-val" id="kpiCompleted">—</div>
+        <div class="head-kpi-label">已完成</div>
       </div>
-      <div class="form-group">
-        <label>预算范围</label>
-        <input type="text" id="budget_range" placeholder="例如：年度 100–200 万 CNY">
+      <div class="head-kpi">
+        <div class="head-kpi-val" id="kpiFailed">—</div>
+        <div class="head-kpi-label">異常</div>
       </div>
-      <button type="submit" class="btn btn-primary">创建项目并启动工作流 ▶</button>
-    </form>
-    <div id="createMsg" style="margin-top:12px;"></div>
-  </div>
+    </div>
+  </header>
 
-  <!-- Project List -->
-  <div class="card">
-    <h2>📋 项目列表</h2>
-    <div id="projectList"><span class="status-msg status-msg-info">加载中…</span></div>
-  </div>
+  <!-- ═══ 區塊一：新建項目（上方） ═══ -->
+  <section>
+    <div class="section-head">
+      <span class="section-seq">01</span>
+      <h2>新建項目</h2>
+    </div>
+    <div class="card">
+      <div class="card-title-row">
+        <span class="card-title">專案基本資料</span>
+      </div>
+      <form id="createForm">
+        <div class="form-grid">
+          <!-- 公司名稱 -->
+          <div class="field">
+            <label for="company">公司名稱 <span class="req">*</span></label>
+            <input type="text" id="company" required placeholder="例如：Apple Inc.">
+          </div>
+          <!-- 產品名稱 -->
+          <div class="field">
+            <label for="product">產品名稱 <span class="req">*</span></label>
+            <input type="text" id="product" required placeholder="例如：iPhone 17 Pro">
+          </div>
+          <!-- 官方網站 -->
+          <div class="field">
+            <label for="website">官方網站</label>
+            <input type="url" id="website" placeholder="https://www.example.com">
+          </div>
+          <!-- 目標市場 -->
+          <div class="field">
+            <label for="target_market">目標市場</label>
+            <input type="text" id="target_market" placeholder="例如：中國大陸、一線城市">
+          </div>
+          <!-- 業務模式（跨全寬） -->
+          <div class="field full">
+            <label for="business_model">業務模式</label>
+            <input type="text" id="business_model" placeholder="例如：B2C 直營電商">
+          </div>
+          <!-- 經營問題（跨全寬） -->
+          <div class="field full">
+            <label for="goals">希望改善的經營問題 &amp; 營銷目標</label>
+            <textarea id="goals" placeholder="例如：提升品牌知名度、增加線上轉化率 20%"></textarea>
+          </div>
+          <!-- 預算範圍 -->
+          <div class="field">
+            <label for="budget_range">預算範圍</label>
+            <input type="text" id="budget_range" placeholder="例如：年度 100–200 萬 CNY">
+          </div>
+        </div>
+        <!-- 操作列：內邊距 12px 14px，gap 10px -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submitBtn">▶ 創建項目並啟動工作流</button>
+          <span id="formMsg" role="status" aria-live="polite" style="font-size:12px;color:var(--muted);"></span>
+        </div>
+        <div id="createMsg" role="alert"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══ 區塊二：流程說明（非專案即時狀態） ═══ -->
+  <section id="workflow-guide" aria-labelledby="workflow-title">
+    <div class="section-head"><span class="section-seq">02</span><h2 id="workflow-title">工作流程說明</h2></div>
+    <div class="card">
+      <p class="progress-intro">建立項目後，系統依序執行六個分析階段；實際進度與報告請到該項目的詳情頁查看。</p>
+      <div class="workflow-grid">
+        <div class="workflow-step"><span class="workflow-no">01 / INFORMATION</span><h3>資訊收集</h3><p>整理公司、產品與市場的基礎資料。</p></div>
+        <div class="workflow-step"><span class="workflow-no">02 / INSIGHTS</span><h3>深度分析</h3><p>從已收集資料辨識問題與機會。</p></div>
+        <div class="workflow-step"><span class="workflow-no">03 / GOAL</span><h3>優先目標</h3><p>形成可供後續策略使用的目標與衡量方式。</p></div>
+        <div class="workflow-step"><span class="workflow-no">04 / INITIATIVE</span><h3>溝通策略</h3><p>規劃對應目標的營銷行動與溝通方向。</p></div>
+        <div class="workflow-step"><span class="workflow-no">05 / IMPLEMENTATION</span><h3>執行建議</h3><p>整理執行任務、工具與時程建議。</p></div>
+        <div class="workflow-step"><span class="workflow-no">06 / MASTER</span><h3>彙總報告</h3><p>彙整各階段的分析結果與建議。</p></div>
+      </div>
+      <div class="workflow-note">以上為標準流程，不代表任何項目已完成；若某階段資料不足，請以項目詳情中的實際狀態為準。</div>
+    </div>
+  </section>
+
+  <!-- ═══ 區塊三：過往記錄（下方） ═══ -->
+  <section>
+    <div class="section-head">
+      <span class="section-seq">03</span>
+      <h2>過往記錄</h2>
+      <span class="card-count" id="recordCount"></span>
+    </div>
+    <div class="card">
+      <div id="recordList">
+        <div class="msg msg-info">載入中…</div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script>
 const API = '';
-function showMsg(el, text, type) { el.innerHTML = `<div class="status-msg status-msg-${type}">${text}</div>`; }
-
-// Load projects
-async function loadProjects() {
-  const res = await fetch(`${API}/api/projects`); const projects = await res.json();
-  const list = document.getElementById('projectList');
-  if (!projects.length) { list.innerHTML = '<p style="color:var(--muted)">暂无项目，请创建第一个项目</p>'; return; }
-  list.innerHTML = projects.map(p => {
-    const badges = { draft: 'badge-muted', running: 'badge-success', waiting_data: 'badge-warning', completed: 'badge-success', failed: 'badge-accent' };
-    return `<div class="card" style="padding:16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <strong style="font-size:1.05rem;">${p.company} / ${p.product}</strong>
-          <div style="margin-top:4px;font-size:0.85rem;color:var(--muted);">
-            ${p.target_market || '未指定市场'} · ${p.budget_range || '未指定预算'}
-            · <span class="badge ${badges[p.status] || 'badge-muted'}">${p.status}</span>
-          </div>
-        </div>
-        <div>
-          <a href="/project.html?id=${p.id}" class="btn btn-sm btn-primary">查看详情</a>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
 }
 
-// Create project
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<div class="msg msg-${type === 'error' ? 'error' : 'info'}">${escapeHtml(text)}</div>`;
+}
+
+async function loadProjects() {
+  const list  = document.getElementById('recordList');
+  const count = document.getElementById('recordCount');
+  const kpiTotal     = document.getElementById('kpiTotal');
+  const kpiRunning   = document.getElementById('kpiRunning');
+  const kpiCompleted = document.getElementById('kpiCompleted');
+  const kpiFailed    = document.getElementById('kpiFailed');
+
+  try {
+    const res = await fetch(`${API}/api/projects`);
+    if (!res.ok) throw new Error('項目列表載入失敗');
+    const projects = await res.json();
+    if (!Array.isArray(projects)) throw new Error('項目列表格式不正確');
+
+    // KPI 更新
+    kpiTotal.textContent     = projects.length;
+    kpiRunning.textContent   = projects.filter(p => p.status === 'running').length;
+    kpiCompleted.textContent = projects.filter(p => p.status === 'completed').length;
+    kpiFailed.textContent    = projects.filter(p => p.status === 'failed').length;
+    count.textContent        = projects.length > 0 ? `${projects.length} 筆` : '';
+
+    if (!projects.length) {
+      list.innerHTML = '<div class="msg msg-warning">暫無項目，請建立第一個項目</div>';
+      return;
+    }
+
+    const badgeMap = {
+      draft:       'badge-draft',
+      running:     'badge-running',
+      waiting_data:'badge-waiting',
+      completed:   'badge-completed',
+      failed:      'badge-failed',
+      paused:      'badge-waiting',
+    };
+
+    list.innerHTML = `<div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>公司 / 產品</th>
+            <th>目標市場</th>
+            <th>預算</th>
+            <th>狀態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${projects.map((p, i) => `
+          <tr>
+            <td class="num">${i + 1}</td>
+            <td>${escapeHtml(p.company)} / ${escapeHtml(p.product)}</td>
+            <td>${escapeHtml(p.target_market || '—')}</td>
+            <td style="font-family:var(--f-mono);font-size:12px;">${escapeHtml(p.budget_range || '—')}</td>
+            <td><span class="badge ${badgeMap[p.status] || 'badge-draft'}">${escapeHtml(p.status)}</span></td>
+            <td>
+              <a href="/project.html?id=${encodeURIComponent(p.id)}" class="btn btn-sm" aria-label="查看${escapeHtml(p.company)}的項目詳情">詳情 →</a>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  } catch(e) {
+    list.innerHTML = '<div class="msg msg-error">載入失敗，請檢查後端服務是否正常運行</div>';
+  }
+}
+
 document.getElementById('createForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const msg = document.getElementById('createMsg');
-  const btn = e.target.querySelector('button');
-  btn.disabled = true; btn.textContent = '创建中…';
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('formMsg');
+  btn.disabled = true;
+  btn.textContent = '創建中…';
+  msg.textContent = '';
 
   const data = {
-    company: document.getElementById('company').value.trim(),
-    product: document.getElementById('product').value.trim(),
-    website: document.getElementById('website').value.trim(),
-    target_market: document.getElementById('target_market').value.trim(),
+    company:        document.getElementById('company').value.trim(),
+    product:        document.getElementById('product').value.trim(),
+    website:        document.getElementById('website').value.trim(),
+    target_market:  document.getElementById('target_market').value.trim(),
     business_model: document.getElementById('business_model').value.trim(),
-    goals: document.getElementById('goals').value.trim(),
-    budget_range: document.getElementById('budget_range').value.trim()
+    goals:          document.getElementById('goals').value.trim(),
+    budget_range:   document.getElementById('budget_range').value.trim()
   };
 
-  const res = await fetch(`${API}/api/projects`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-  const result = await res.json();
-  if (res.ok) {
-    showMsg(msg, '项目已创建！正在启动 Antfarm 工作流…', 'success');
-    // Start workflow
-    const startRes = await fetch(`${API}/api/projects/${result.id}/start`, { method:'POST' });
-    const startResult = await startRes.json();
-    if (startRes.ok) {
-      showMsg(msg, `✅ 工作流已启动！<a href="/project.html?id=${result.id}">查看项目</a>`, 'success');
+  try {
+    const res = await fetch(`${API}/api/projects`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data)
+    });
+    const result = await res.json();
+
+    if (res.ok) {
+      msg.textContent = '✅ 項目已建立，正在啟動工作流…';
+      const startRes    = await fetch(`${API}/api/projects/${encodeURIComponent(result.id)}/start`, { method: 'POST' });
+      const startResult = await startRes.json();
+      if (startRes.ok) {
+        msg.textContent = `✅ 工作流已啟動！`;
+        setTimeout(() => { window.location.href = `/project.html?id=${encodeURIComponent(result.id)}`; }, 800);
+      } else {
+        msg.textContent = `⚠️ 項目已建立，工作流啟動失敗：${startResult.error || startResult.message}`;
+      }
+      document.getElementById('createForm').reset();
+      loadProjects();
     } else {
-      showMsg(msg, `⚠️ 项目已创建但工作流启动失败：${startResult.error || startResult.message}`, 'warning');
+      showMsg('createMsg', `❌ 建立失敗：${result.error}`, 'error');
     }
-    document.getElementById('createForm').reset();
-    loadProjects();
-  } else {
-    showMsg(msg, `❌ 创建失败：${result.error}`, 'error');
+  } catch(e) {
+    showMsg('createMsg', `❌ 網路錯誤：${e.message}`, 'error');
   }
-  btn.disabled = false; btn.textContent = '创建项目并启动工作流 ▶';
+
+  btn.disabled = false;
+  btn.textContent = '▶ 創建項目並啟動工作流';
 });
 
 loadProjects();

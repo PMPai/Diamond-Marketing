@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diamond Marketing — 项目列表</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="header">
+  <h1>💎 Diamond Marketing</h1>
+  <nav>
+    <a href="/">项目列表</a>
+    <a href="http://localhost:3333" target="_blank">Antfarm 进度 ↘</a>
+  </nav>
+</div>
+
+<div class="container">
+  <!-- New Project Form -->
+  <div class="card">
+    <h2>➕ 新建项目</h2>
+    <form id="createForm">
+      <div class="grid-2">
+        <div class="form-group">
+          <label>公司名称 <span class="field-required">*</span></label>
+          <input type="text" id="company" required placeholder="例如：Apple Inc.">
+        </div>
+        <div class="form-group">
+          <label>产品名称 <span class="field-required">*</span></label>
+          <input type="text" id="product" required placeholder="例如：iPhone 17 Pro">
+        </div>
+        <div class="form-group">
+          <label>官方网站</label>
+          <input type="url" id="website" placeholder="https://www.example.com">
+        </div>
+        <div class="form-group">
+          <label>目标市场</label>
+          <input type="text" id="target_market" placeholder="例如：中国大陆、一线城市">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>业务模式</label>
+        <input type="text" id="business_model" placeholder="例如：B2C 直营电商">
+      </div>
+      <div class="form-group">
+        <label>希望改善的经营问题 &amp; 营销目标</label>
+        <textarea id="goals" placeholder="例如：提升品牌知名度、增加线上转化率 20%"></textarea>
+      </div>
+      <div class="form-group">
+        <label>预算范围</label>
+        <input type="text" id="budget_range" placeholder="例如：年度 100–200 万 CNY">
+      </div>
+      <button type="submit" class="btn btn-primary">创建项目并启动工作流 ▶</button>
+    </form>
+    <div id="createMsg" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- Project List -->
+  <div class="card">
+    <h2>📋 项目列表</h2>
+    <div id="projectList"><span class="status-msg status-msg-info">加载中…</span></div>
+  </div>
+</div>
+
+<script>
+const API = '';
+function showMsg(el, text, type) { el.innerHTML = `<div class="status-msg status-msg-${type}">${text}</div>`; }
+
+// Load projects
+async function loadProjects() {
+  const res = await fetch(`${API}/api/projects`); const projects = await res.json();
+  const list = document.getElementById('projectList');
+  if (!projects.length) { list.innerHTML = '<p style="color:var(--muted)">暂无项目，请创建第一个项目</p>'; return; }
+  list.innerHTML = projects.map(p => {
+    const badges = { draft: 'badge-muted', running: 'badge-success', waiting_data: 'badge-warning', completed: 'badge-success', failed: 'badge-accent' };
+    return `<div class="card" style="padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong style="font-size:1.05rem;">${p.company} / ${p.product}</strong>
+          <div style="margin-top:4px;font-size:0.85rem;color:var(--muted);">
+            ${p.target_market || '未指定市场'} · ${p.budget_range || '未指定预算'}
+            · <span class="badge ${badges[p.status] || 'badge-muted'}">${p.status}</span>
+          </div>
+        </div>
+        <div>
+          <a href="/project.html?id=${p.id}" class="btn btn-sm btn-primary">查看详情</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Create project
+document.getElementById('createForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('createMsg');
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = '创建中…';
+
+  const data = {
+    company: document.getElementById('company').value.trim(),
+    product: document.getElementById('product').value.trim(),
+    website: document.getElementById('website').value.trim(),
+    target_market: document.getElementById('target_market').value.trim(),
+    business_model: document.getElementById('business_model').value.trim(),
+    goals: document.getElementById('goals').value.trim(),
+    budget_range: document.getElementById('budget_range').value.trim()
+  };
+
+  const res = await fetch(`${API}/api/projects`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  const result = await res.json();
+  if (res.ok) {
+    showMsg(msg, '项目已创建！正在启动 Antfarm 工作流…', 'success');
+    // Start workflow
+    const startRes = await fetch(`${API}/api/projects/${result.id}/start`, { method:'POST' });
+    const startResult = await startRes.json();
+    if (startRes.ok) {
+      showMsg(msg, `✅ 工作流已启动！<a href="/project.html?id=${result.id}">查看项目</a>`, 'success');
+    } else {
+      showMsg(msg, `⚠️ 项目已创建但工作流启动失败：${startResult.error || startResult.message}`, 'warning');
+    }
+    document.getElementById('createForm').reset();
+    loadProjects();
+  } else {
+    showMsg(msg, `❌ 创建失败：${result.error}`, 'error');
+  }
+  btn.disabled = false; btn.textContent = '创建项目并启动工作流 ▶';
+});
+
+loadProjects();
+</script>
+</body>
+</html>

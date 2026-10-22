@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>💎 钻石营销仪表板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F0EFEB; --card: #FAFAF8; --txt: #1C1C1A; --sub: #6B6B65;
+  --g1: #E8E7E2; --g2: #D4D3CD; --g3: #B8B7B0; --g4: #9A9992; --g5: #7A7973;
+  --g6: #55544F; --g7: #3A3A36;
+  --accent: #1A56DB; --success: #0E9F6E; --warn: #E3A008; --danger: #E0245E;
+  --radius: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter',-apple-system,BlinkMacSystemFont,'Noto Sans SC',sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; }
+a { color: var(--accent); text-decoration: none; }
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--g2); }
+.header h1 { font-size: 1.1rem; font-weight: 700; }
+.header nav a { font-size: 0.85rem; margin-left: 20px; font-weight: 500; color: var(--g6); }
+.header nav a:hover { color: var(--txt); }
+
+/* Cards */
+.card { background: var(--card); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.card .sub { font-size: 0.8rem; color: var(--sub); margin-bottom: 16px; }
+.card .src { font-size: 0.7rem; color: var(--g4); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 12px; }
+
+/* SVG charts */
+.chart-wrap { position: relative; width: 100%; }
+.chart-wrap svg { width: 100%; height: auto; display: block; }
+.mono-bar { fill: var(--g3); transition: width 0.6s cubic-bezier(0.23,1,0.32,1); }
+.mono-bar.highlight { fill: var(--g7); }
+.mono-tick { stroke: var(--g2); stroke-width: 0.5; }
+.mono-label { font-size: 10px; fill: var(--g4); font-weight: 500; }
+.mono-value { font-size: 11px; fill: var(--txt); font-weight: 700; }
+.mono-title { font-size: 12px; fill: var(--txt); font-weight: 600; }
+
+/* Stage buttons */
+.stage-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.stage-btn { flex: 1; min-width: 80px; padding: 12px 8px; border: 2px solid var(--g2); border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s; background: var(--card); font-size: 0.8rem; font-family: inherit; }
+.stage-btn:hover { transform: translateY(-2px); border-color: var(--g4); }
+.stage-btn .num { font-size: 1.2rem; font-weight: 800; display: block; }
+.stage-btn .name { display: block; margin-top: 3px; font-size: 0.72rem; color: var(--sub); }
+.stage-btn.pending { border-color: var(--g1); color: var(--g4); }
+.stage-btn.running { border-color: var(--accent); background: #E1EFFE; }
+.stage-btn.running .num { color: var(--accent); animation: pulse 1.5s infinite; }
+.stage-btn.done { border-color: var(--success); background: #DEF7EC; cursor: pointer; }
+.stage-btn.done .num { color: var(--success); }
+.stage-btn.done:hover { background: #C6F6D5; }
+.stage-btn.failed { border-color: var(--danger); background: #FDE8E8; }
+.stage-btn.failed .num { color: var(--danger); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Gap cards */
+.gap-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--g1); }
+.gap-item:last-child { border-bottom: none; }
+.gap-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); flex-shrink: 0; margin-top: 4px; }
+.gap-info { flex: 1; }
+.gap-info strong { font-size: 0.9rem; }
+.gap-info .gap-desc { font-size: 0.8rem; color: var(--sub); margin-top: 2px; }
+.gap-input { width: 150px; padding: 8px 10px; border: 1px solid var(--g2); border-radius: 8px; font-size: 0.85rem; font-family: inherit; background: var(--card); }
+.gap-input:focus { outline: none; border-color: var(--accent); }
+
+/* Grid */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* Buttons */
+.btn { display: inline-block; padding: 8px 16px; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.btn-accent { background: var(--txt); color: var(--bg); }
+.btn-accent:hover { opacity: 0.85; }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+/* Kill dropdown */
+.kill-dropdown { position: relative; display: inline-block; }
+.kill-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--card); border: 1px solid var(--g2); border-radius: 8px; z-index: 100; min-width: 160px; }
+.kill-menu.show { display: block; }
+.kill-menu button { display: block; width: 100%; padding: 10px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.85rem; font-family: inherit; }
+.kill-menu button:hover { background: var(--g1); }
+.kill-menu button.danger:hover { background: #FDE8E8; color: var(--danger); }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--card); border-radius: 16px; width: 92%; max-width: 1000px; max-height: 88vh; display: flex; flex-direction: column; }
+.modal-header { padding: 16px 24px; border-bottom: 1px solid var(--g1); display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--g4); padding: 4px 8px; }
+.modal-close:hover { color: var(--danger); }
+.modal-body { flex: 1; overflow: auto; }
+.modal-body iframe { width: 100%; height: 75vh; border: none; }
+
+@media (max-width: 768px) { .grid2,.grid3 { grid-template-columns: 1fr; } .container { padding: 12px; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>💎 钻石营销仪表板</h1>
+  <nav><a href="/">← 项目列表</a><a href="http://localhost:3333">Antfarm ↗</a></nav>
+</div>
+<div class="container"><div id="app"></div></div>
+
+<div class="modal-overlay" id="reportModal">
+  <div class="modal"><div class="modal-header"><h2 id="modalTitle">阶段报告</h2><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><iframe id="reportFrame"></iframe></div></div>
+</div>
+
+<script>
+const API='',params=new URLSearchParams(location.search),projectId=params.get('id');
+if(!projectId) location.href='/';
+const SM={information:{n:1,nm:'信息收集'},insights:{n:2,nm:'深度分析'},goal:{n:3,nm:'优先目标'},initiative:{n:4,nm:'沟通策略'},implementation:{n:5,nm:'执行建议'},master:{n:6,nm:'汇总报告'}};
+let runId=null;
+
+async function load(){
+  const dash=await fetch(`${API}/api/dashboard/${projectId}`).then(r=>r.json());
+  render(dash);
+}
+
+function render(data){
+  const {project,run,stages,dashboard_json,initiatives,scenarios,tasks,metrics}=data;
+  if(run) runId=run.run_id;
+  const dj=dashboard_json||{};
+  let h='';
+
+  // === HEADER ===
+  h+=`<div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div><h2 style="margin:0;">${project.company} / ${project.product}</h2>
+    <div class="sub">${project.status} · ${run?run.run_id.slice(0,12)+'…':''}</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm btn-accent" onclick="location.reload()" style="background:var(--g4);">↻ 刷新</button>
+      ${run?`<div class="kill-dropdown"><button class="btn btn-sm" style="background:var(--danger);color:#fff;" onclick="document.querySelector('.kill-menu').classList.toggle('show')">⏹ 控制 ▾</button>
+      <div class="kill-menu"><button onclick="kill('pause')">⏸ 暂停</button><button class="danger" onclick="kill('terminate')">⏹ 终止</button></div></div>`:''}
+    </div></div>`;
+
+  // === STAGE BUTTONS ===
+  if(stages&&stages.length>0){
+    h+=`<div class="card"><h2>阶段进度</h2><div class="stage-row" style="margin-top:12px;">`;
+    stages.forEach(s=>{const i=SM[s.stage]||{n:'?',nm:s.stage};
+      h+=`<div class="stage-btn ${s.status}" ${s.status==='done'?`onclick="openReport('${s.stage}')"`:''} title="${s.status==='done'?'点击查看报告':''}">
+        <span class="num">${s.status==='running'?'⋯':s.status==='done'?'✓':i.n}</span><span class="name">${i.nm}</span></div>`;});
+    h+=`</div></div>`;
+  }
+
+  // === MAIN GRID ===
+  h+=`<div class="grid2">`;
+
+  // --- Chart: Diamond Structure (ARC) ---
+  h+=`<div class="card"><h2>🔷 钻石营销结构</h2><div class="sub">ARC 系统 · 12 子任务分布</div>
+    <div class="chart-wrap" id="diamondChart"></div>
+    <div class="src">Diamond Marketing · ARC Framework · 方法论来源: Ch.7</div></div>`;
+
+  // --- Chart: Key Metrics ---
+  const showMetrics=metrics&&metrics.length>0?metrics:(dj.metrics||[]);
+  if(showMetrics.length>0){
+    const mv=[];
+    for(let i=0;i<Math.min(6,showMetrics.length);i++){
+      const m=showMetrics[i];mv.push({label:m.name||m.metric_id,val:m.value,mx:Math.max(m.value||0,m.planned||m.target||0),target:m.planned||m.target,unit:m.unit||''});
+    }
+    const maxVal=Math.max(...mv.map(v=>v.mx),1);
+    h+=`<div class="card"><h2>📊 关键指标</h2><div class="sub">${mv.length} 项指标 · 条长 = 实际值</div>
+      <div class="chart-wrap"><svg viewBox="0 0 360 ${mv.length*48+20}" id="metricBars"></svg></div>
+      <div class="src">Metrics · Stage 1-2 · ${new Date().toLocaleDateString()}</div></div>`;
+    // render after DOM
+    setTimeout(()=>{
+      const svg=document.getElementById('metricBars'); if(!svg)return;
+      let y=10;
+      mv.forEach((m,i)=>{
+        const g7shade=[`var(--g7)`,`var(--g6)`,`var(--g5)`,`var(--g4)`,`var(--g3)`,`var(--g2)`];
+        const w=Math.max(4,(m.val||0)/maxVal*300);
+        const tw=m.target?(m.target/maxVal*300):0;
+        svg.innerHTML+=`
+          <text x="2" y="${y+16}" class="mono-label">${m.label}</text>
+          <rect x="105" y="${y+6}" width="${w}" height="22" rx="4" fill="${g7shade[i]||'var(--g3)'}">
+            <animate attributeName="width" from="0" to="${w}" dur="0.6s" fill="freeze" calcMode="spline" keySplines="0.23 1 0.32 1"/></rect>
+          <text x="${w+112}" y="${y+22}" class="mono-value">${m.val!=null?m.val.toLocaleString()+m.unit:'⏳'}</text>
+          ${m.target?`<line x1="105" y1="${y+4}" x2="105" y2="${y+32}" stroke="var(--g4)" stroke-width="1" stroke-dasharray="3,2"/><text x="107" y="${y+36}" class="mono-label" style="font-size:8px;">目标:${m.target.toLocaleString()}</text>`:''}`;
+        y+=48;
+      });
+    },10);
+  }
+
+  h+=`</div>`; // end grid2
+
+  // === ROI Scenarios ===
+  if(scenarios&&scenarios.length>0){
+    h+=`<div class="card"><h2>💰 ROI 情境分析</h2><div class="sub">${scenarios.length} 项 · 按方案分组</div>
+    <div class="chart-wrap"><svg viewBox="0 0 500 ${Math.max(80,scenarios.length*28+30)}" id="roiBars"></svg></div>
+    <div class="src">ROI Scenarios · Stage 3</div></div>`;
+    setTimeout(()=>{
+      const svg=document.getElementById('roiBars'); if(!svg)return;
+      const maxCost=Math.max(...scenarios.map(s=>Math.abs(s.cost||0)),1);
+      let y=15;
+      scenarios.forEach((s,i)=>{
+        const l=s.name||s.initiative_id; const cost=s.cost||0; const roi=((s.roi||0)*100).toFixed(0);
+        const w=Math.min(Math.abs(cost)/maxCost*280,280);
+        svg.innerHTML+=`
+          <text x="2" y="${y+11}" class="mono-label" style="font-size:8px;">${l.slice(0,20)}</text>
+          <rect x="110" y="${y+4}" width="${w}" height="12" rx="3" fill="${roi>0?'var(--success)':roi<0?'var(--danger)':'var(--g4)'}">
+            <animate attributeName="width" from="0" to="${w}" dur="0.5s" fill="freeze"/></rect>
+          <text x="${w+118}" y="${y+14}" class="mono-value" style="font-size:9px;">${roi}% · ${(cost/10000).toFixed(0)}万</text>`;
+        y+=28;
+      });
+    },10);
+  }
+
+  // === Tasks ===
+  if(tasks&&tasks.length>0){
+    h+=`<div class="card"><h2>📋 WBS 任务 (${tasks.length})</h2><div class="sub">${tasks.filter(t=>t.status!=='planned').length} 已启动</div>
+    <div style="max-height:200px;overflow:auto;margin-top:8px;">`;
+    tasks.slice(0,10).forEach(t=>h+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--g1);font-size:0.82rem;">
+      <span style="font-family:monospace;color:var(--g5);">${(t.task_id||'').slice(0,10)}</span>
+      <span style="flex:1;margin:0 10px;">${t.title}</span>
+      <span style="color:${t.status==='planned'?'var(--g4)':'var(--success)'}">${t.status}</span></div>`);
+    h+=`</div><div class="src">WBS · Stage 4</div></div>`;
+  }
+
+  if(!stages||stages.length===0) h+=`<div class="card"><div class="sub" style="text-align:center;padding:20px;">等待工作流产出… ⏳</div></div>`;
+
+  document.getElementById('app').innerHTML=h;
+
+  // Diamond chart
+  setTimeout(()=>renderDiamond(dj),20);
+
+  document.addEventListener('click',e=>{if(!e.target.closest('.kill-dropdown'))document.querySelector('.kill-menu')?.classList.remove('show');});
+}
+
+function renderDiamond(dj){
+  const el=document.getElementById('diamondChart'); if(!el)return;
+  const stages=['Attract','Relevance','Connect','Action','Retain','Refer'];
+  const colors=['var(--g7)','var(--g6)','var(--g5)','var(--g4)','var(--g3)','var(--g2)'];
+  const nodes=dj.diamond?.nodes||{};
+  el.innerHTML=`<svg viewBox="0 0 340 200">
+    <g transform="translate(170,100)">${stages.map((s,i)=>{
+      const a=(i/stages.length)*Math.PI*2-Math.PI/2; const r=75;
+      return `<circle cx="${Math.cos(a)*r}" cy="${Math.sin(a)*r}" r="18" fill="none" stroke="${colors[i]}" stroke-width="2.5"/>
+        <text x="${Math.cos(a)*r}" y="${Math.sin(a)*r+3}" text-anchor="middle" class="mono-label" style="font-size:7px;">${s}</text>
+        <text x="${Math.cos(a)*r}" y="${Math.sin(a)*r+14}" text-anchor="middle" style="font-size:6px;fill:var(--g4);">${(nodes[s]||'').slice(0,12)}</text>`;
+    }).join('')}
+      <circle cx="0" cy="0" r="12" fill="var(--g7)"/><text x="0" y="3" text-anchor="middle" style="font-size:7px;fill:var(--bg);font-weight:700;">💎</text>
+      ${stages.map((s,i)=>{
+        const a=(i/stages.length)*Math.PI*2-Math.PI/2;
+        return `<line x1="${Math.cos(a)*18}" y1="${Math.sin(a)*18}" x2="${Math.cos(a)*57}" y2="${Math.sin(a)*57}" stroke="${colors[i]}" stroke-width="1" stroke-dasharray="2,2"/>`;
+      }).join('')}
+    </g></svg>`;
+}
+
+function openReport(stage){if(!runId)return;const i=SM[stage]||{n:'?',nm:stage};
+  document.getElementById('modalTitle').textContent=`📄 第${i.n}阶段：${i.nm}`;
+  document.getElementById('reportFrame').src=`/api/projects/${projectId}/report/${stage}`;
+  document.getElementById('reportModal').classList.add('active');}
+function closeModal(){document.getElementById('reportModal').classList.remove('active');document.getElementById('reportFrame').src='';}
+document.getElementById('reportModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+async function kill(action){
+  document.querySelector('.kill-menu')?.classList.remove('show');
+  if(!confirm(action==='terminate'?'终止所有运行？':'暂停工作流？可随时 resume。'))return;
+  const res=await fetch(`${API}/api/projects/${projectId}/kill`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
+  alert((await res.json()).message);setTimeout(()=>location.reload(),1000);}
+
+load();
+setInterval(()=>{fetch(`${API}/api/projects/${projectId}`).then(r=>r.json()).then(d=>{if(d.project?.status==='running')load();}).catch(()=>{});},20000);
+</script>
+</body>
+</html>

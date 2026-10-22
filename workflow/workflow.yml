@@ -1,0 +1,318 @@
+id: diamond-marketing
+name: Diamond Marketing (6 Stages)
+version: 1
+description: >
+  钻石营销六阶段工作流（信息收集→深度分析→优先目标→沟通策略→执行建议→汇总报告），
+  依据《智慧公民_AI时代的能力养成》第七章方法论。
+  第一阶段含资料门禁：信息不足时写 gate 文件、POST http://localhost:3330/api/gate、
+  honest fail（waiting_data），后台补件完成后 workflow resume 接续。
+  动态仪表板由后台 Port 3330 提供，Master agent 负责生成 data/dashboard.json（资料层）。
+
+agents:
+  - id: diamond-information
+    name: Diamond-Information agent
+    role: coding
+    timeoutSeconds: 2700
+    description: >
+      第一阶段：输入充分性检查（资料门禁）、MECE 五类研究、七条线索、
+      证据溯源，产出 information.html 与初步定位。
+    workspace:
+      baseDir: agents/diamond-information
+      files:
+        AGENTS.md: agents/diamond-information/AGENTS.md
+        SOUL.md: agents/diamond-information/SOUL.md
+        IDENTITY.md: agents/diamond-information/IDENTITY.md
+        common-rules.md: agents/shared/common-rules.md
+        report-style.md: agents/shared/report-style.md
+        gate-protocol.md: agents/shared/gate-protocol.md
+        data-contracts.md: agents/shared/data-contracts.md
+        chapter7-method.md: resources/chapter7.md
+
+  - id: diamond-insights
+    name: Diamond-Insights agent
+    role: coding
+    timeoutSeconds: 2700
+    description: >
+      第二阶段：市场阶段与4P/4C、QBQ 分析、IMC 说明书、
+      ARC 整体系统与十二子任务，产出 insights.html。
+    workspace:
+      baseDir: agents/diamond-insights
+      files:
+        AGENTS.md: agents/diamond-insights/AGENTS.md
+        SOUL.md: agents/diamond-insights/SOUL.md
+        IDENTITY.md: agents/diamond-insights/IDENTITY.md
+        common-rules.md: agents/shared/common-rules.md
+        report-style.md: agents/shared/report-style.md
+        data-contracts.md: agents/shared/data-contracts.md
+        chapter7-method.md: resources/chapter7.md
+
+  - id: diamond-goal
+    name: Diamond-Goal agent
+    role: coding
+    timeoutSeconds: 2700
+    description: >
+      第三阶段：候选池→三个优先沟通方式，ABC 成本、ROI 公式与三情境、
+      SMART 目标、Minto 金字塔，产出 goal.html。
+    workspace:
+      baseDir: agents/diamond-goal
+      files:
+        AGENTS.md: agents/diamond-goal/AGENTS.md
+        SOUL.md: agents/diamond-goal/SOUL.md
+        IDENTITY.md: agents/diamond-goal/IDENTITY.md
+        common-rules.md: agents/shared/common-rules.md
+        report-style.md: agents/shared/report-style.md
+        data-contracts.md: agents/shared/data-contracts.md
+        chapter7-method.md: resources/chapter7.md
+
+  - id: diamond-initiative
+    name: Diamond-Initiative agent
+    role: coding
+    timeoutSeconds: 2700
+    description: >
+      第四阶段：三个优先方式展开为战略行动与 WBS 工作分解
+      （任务ID/依赖/资源/价值假设），工具联网研究，产出 initiative.html。
+    workspace:
+      baseDir: agents/diamond-initiative
+      files:
+        AGENTS.md: agents/diamond-initiative/AGENTS.md
+        SOUL.md: agents/diamond-initiative/SOUL.md
+        IDENTITY.md: agents/diamond-initiative/IDENTITY.md
+        common-rules.md: agents/shared/common-rules.md
+        report-style.md: agents/shared/report-style.md
+        data-contracts.md: agents/shared/data-contracts.md
+        chapter7-method.md: resources/chapter7.md
+
+  - id: diamond-implementation
+    name: Diamond-Implementation agent
+    role: coding
+    timeoutSeconds: 2700
+    description: >
+      第五阶段：整合 WBS/预算/资源/依赖为总体时间表，
+      甘特图与检查点表，一致性检查，产出 implementation.html。
+    workspace:
+      baseDir: agents/diamond-implementation
+      files:
+        AGENTS.md: agents/diamond-implementation/AGENTS.md
+        SOUL.md: agents/diamond-implementation/SOUL.md
+        IDENTITY.md: agents/diamond-implementation/IDENTITY.md
+        common-rules.md: agents/shared/common-rules.md
+        report-style.md: agents/shared/report-style.md
+        data-contracts.md: agents/shared/data-contracts.md
+        chapter7-method.md: resources/chapter7.md
+
+  - id: master
+    name: Master agent
+    role: coding
+    timeoutSeconds: 2700
+    description: >
+      第六阶段：读取前五阶段产出，生成 data/dashboard.json（动态仪表板资料层，
+      由 3330 后台渲染）、artifact-manifest.json，可选静态快照 Master.html。
+    workspace:
+      baseDir: agents/master
+      files:
+        AGENTS.md: agents/master/AGENTS.md
+        SOUL.md: agents/master/SOUL.md
+        IDENTITY.md: agents/master/IDENTITY.md
+        common-rules.md: agents/shared/common-rules.md
+        report-style.md: agents/shared/report-style.md
+        data-contracts.md: agents/shared/data-contracts.md
+        chapter7-method.md: resources/chapter7.md
+
+steps:
+  - id: diamond-information
+    agent: diamond-information
+    input: |
+      你是 Diamond-Information agent，执行钻石营销工作流第一阶段（信息收集）。
+      严格按照工作区 AGENTS.md、common-rules.md、report-style.md 执行。
+
+      原始任务（含 PROJECT_ID 与 INPUTS_JSON 约定行）：
+      {{task}}
+
+      本次运行 run_id：{{run_id}}
+
+      要点提醒：
+      1. 第一项任务必须是输入充分性检查。若关键内部资料不足：写 gate 文件、POST http://localhost:3330/api/gate、然后调用 step fail（错误信息以 waiting_data 开头），绝对不要调用 step complete。
+      2. 若 gate 文件已存在且 status 为 waiting 而补充资料尚未到位：立即再次 step fail（不要重复研究）。
+      3. 资料充分时完成 MECE 五类研究、七条线索、全部产出文件与质量自检，最后才 step complete。
+
+      完成时的输出（写入 /tmp/antfarm-step-output.txt 后 pipe 给 step complete）：
+      STATUS: done
+      PROJECT_ID: <项目ID>
+      STAGE_DIR: <项目根>/Output/<project_id>/<run_id> 的绝对路径
+      HANDOFF: handoffs/01-information.md
+      DATA_JSON: data/information.json
+      POSITIONING: handoffs/product-positioning-initial.md
+      SUMMARY: 一段话摘要（简体中文）
+    expects: "STATUS: done"
+    max_retries: 3
+
+  - id: diamond-insights
+    agent: diamond-insights
+    input: |
+      你是 Diamond-Insights agent，执行钻石营销工作流第二阶段（深度分析）。
+      严格按照工作区 AGENTS.md、common-rules.md、report-style.md 执行。
+
+      原始任务：
+      {{task}}
+
+      run_id：{{run_id}}
+      project_id：{{project_id}}
+      运行目录 STAGE_DIR：{{stage_dir}}
+      第一阶段交接文档：{{stage_dir}}/{{handoff}}
+      第一阶段数据：{{stage_dir}}/{{data_json}}
+      初步定位：{{stage_dir}}/{{positioning}}
+
+      必须读取第一阶段交接文档与引用证据，不得另起一套公司背景或客户画像。
+
+      完成时的输出（写入 /tmp/antfarm-step-output.txt 后 pipe 给 step complete）：
+      STATUS: done
+      PROJECT_ID: {{project_id}}
+      STAGE_DIR: {{stage_dir}}
+      HANDOFF: handoffs/02-insights.md
+      DATA_JSON: data/insights.json
+      IMC_GUIDE: handoffs/imc-guide.md
+      ARC_DESIGN: handoffs/arc-design.md
+      SUMMARY: 一段话摘要（简体中文）
+    expects: "STATUS: done"
+    max_retries: 1
+
+  - id: diamond-goal
+    agent: diamond-goal
+    input: |
+      你是 Diamond-Goal agent，执行钻石营销工作流第三阶段（优先目标）。
+      严格按照工作区 AGENTS.md、common-rules.md、report-style.md 执行。
+
+      原始任务：
+      {{task}}
+
+      run_id：{{run_id}}
+      project_id：{{project_id}}
+      运行目录 STAGE_DIR：{{stage_dir}}
+      第二阶段交接文档：{{stage_dir}}/{{handoff}}
+      第二阶段数据：{{stage_dir}}/{{data_json}}
+      IMC 说明书：{{stage_dir}}/{{imc_guide}}
+      ARC 设计：{{stage_dir}}/{{arc_design}}
+      第一阶段数据（证据引用用）：{{stage_dir}}/data/information.json
+
+      ARC 作为整体评价；三个优先方式不强制 A、R、C 各占一个，但必须检查上下游承接。
+      先建候选池再比较选择，不能先选渠道再补数字。
+      ROI 统一公式：（可归因增量贡献利润 − 增量营销成本）÷ 增量营销成本。
+
+      完成时的输出（写入 /tmp/antfarm-step-output.txt 后 pipe 给 step complete）：
+      STATUS: done
+      PROJECT_ID: {{project_id}}
+      STAGE_DIR: {{stage_dir}}
+      HANDOFF: handoffs/03-goal.md
+      DATA_JSON: data/goal.json
+      ROI_SCENARIOS: data/roi-scenarios.json
+      SUMMARY: 一段话摘要（简体中文）
+    expects: "STATUS: done"
+    max_retries: 1
+
+  - id: diamond-initiative
+    agent: diamond-initiative
+    input: |
+      你是 Diamond-Initiative agent，执行钻石营销工作流第四阶段（沟通策略）。
+      严格按照工作区 AGENTS.md、common-rules.md、report-style.md 执行。
+
+      原始任务：
+      {{task}}
+
+      run_id：{{run_id}}
+      project_id：{{project_id}}
+      运行目录 STAGE_DIR：{{stage_dir}}
+      第三阶段交接文档：{{stage_dir}}/{{handoff}}
+      第三阶段数据：{{stage_dir}}/{{data_json}}
+      ROI 情境数据：{{stage_dir}}/{{roi_scenarios}}
+      第二阶段 IMC 说明书：{{stage_dir}}/handoffs/imc-guide.md
+      第二阶段 ARC 设计：{{stage_dir}}/handoffs/arc-design.md
+
+      为每个优先方式建立：目标→关键行动→工作包→具体任务→交付物→验收标准。
+      负责人未落实时用角色名称并标「待指定」，不得编造人员。
+      工具研究必须用官方资料核验，未核实的功能或费用明确标记。
+
+      完成时的输出（写入 /tmp/antfarm-step-output.txt 后 pipe 给 step complete）：
+      STATUS: done
+      PROJECT_ID: {{project_id}}
+      STAGE_DIR: {{stage_dir}}
+      HANDOFF: handoffs/04-initiative.md
+      DATA_JSON: data/initiative.json
+      WBS_JSON: data/wbs.json
+      TOOL_RECOMMENDATIONS: data/tool-recommendations.json
+      SUMMARY: 一段话摘要（简体中文）
+    expects: "STATUS: done"
+    max_retries: 1
+
+  - id: diamond-implementation
+    agent: diamond-implementation
+    input: |
+      你是 Diamond-Implementation agent，执行钻石营销工作流第五阶段（执行建议）。
+      严格按照工作区 AGENTS.md、common-rules.md、report-style-md 执行。
+
+      原始任务：
+      {{task}}
+
+      run_id：{{run_id}}
+      project_id：{{project_id}}
+      运行目录 STAGE_DIR：{{stage_dir}}
+      第四阶段交接文档：{{stage_dir}}/{{handoff}}
+      第四阶段数据：{{stage_dir}}/{{data_json}}
+      WBS 数据：{{stage_dir}}/{{wbs_json}}
+      第三阶段目标数据：{{stage_dir}}/data/goal.json
+
+      不得在已有 WBS 之外随意增加不一致的任务或预算。
+      不把计划中的动作标成已经完成，不把预期 KPI 当成实绩。
+      没有实际开始日期时使用「第 1 周」等相对时间并明确标示。
+
+      完成时的输出（写入 /tmp/antfarm-step-output.txt 后 pipe 给 step complete）：
+      STATUS: done
+      PROJECT_ID: {{project_id}}
+      STAGE_DIR: {{stage_dir}}
+      HANDOFF: handoffs/05-implementation.md
+      DATA_JSON: data/implementation.json
+      SCHEDULE_JSON: data/schedule.json
+      CHECKPOINTS_JSON: data/checkpoints.json
+      SUMMARY: 一段话摘要（简体中文）
+    expects: "STATUS: done"
+    max_retries: 1
+
+  - id: master
+    agent: master
+    input: |
+      你是 Master agent，执行钻石营销工作流第六阶段（汇总报告与仪表板数据层）。
+      严格按照工作区 AGENTS.md、common-rules.md、report-style.md 执行。
+
+      原始任务：
+      {{task}}
+
+      run_id：{{run_id}}
+      project_id：{{project_id}}
+      运行目录 STAGE_DIR：{{stage_dir}}
+      第五阶段交接文档：{{stage_dir}}/{{handoff}}
+
+      读取以下全部上游产出（均位于 STAGE_DIR 下）：
+      information.html / insights.html / goal.html / initiative.html / implementation.html
+      handoffs/01-information.md … handoffs/05-implementation.md
+      data/information.json、data/insights.json、data/goal.json、data/roi-scenarios.json、
+      data/initiative.json、data/wbs.json、data/tool-recommendations.json、
+      data/implementation.json、data/schedule.json、data/checkpoints.json
+
+      重要职责区分：
+      - 你的职责是生成 data/dashboard.json（结构化资料层）和 data/artifact-manifest.json
+      - Master.html 为可选静态快照
+      - 动态仪表板由 3330 后台（http://localhost:3330/dashboard/<project_id>）渲染，
+        连接业务数据库；你不负责生成该页面
+
+      不得另行编造一套策略、任务或 KPI。六阶段导航与钻石图营销节点分别建立映射。
+      没有实际经营数据时实际值显示「暂无数据」，估算值单独展示。
+
+      完成时的输出（写入 /tmp/antfarm-step-output.txt 后 pipe 给 step complete）：
+      STATUS: done
+      PROJECT_ID: {{project_id}}
+      STAGE_DIR: {{stage_dir}}
+      HANDOFF: handoffs/06-master.md
+      DATA_JSON: data/dashboard.json
+      MANIFEST: data/artifact-manifest.json
+      SUMMARY: 一段话摘要（简体中文）
+    expects: "STATUS: done"
+    max_retries: 1

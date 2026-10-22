@@ -1,0 +1,13 @@
+{
+  "name": "diamond-marketing-backend",
+  "version": "1.0.0",
+  "description": "Diamond-Marketing 本地后台：项目输入、资料门禁、业务数据库、动态仪表板",
+  "main": "server.js",
+  "engines": { "node": ">=23.4" },
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node -e \"require('./db').init()\""
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

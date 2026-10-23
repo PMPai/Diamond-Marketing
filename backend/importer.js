@@ -6,8 +6,19 @@ const { importSources, importClaims, importMetrics, importInitiatives, importRoi
 
 const DATA_DIR = process.env.DIAMOND_DATA || path.resolve(__dirname, 'data');
 
+// Resolve run output dir, supporting both layouts:
+//   new: Output/<project_id>/<run_id>/  (per common-rules.md STAGE_DIR)
+//   old: Output/<run_id>/               (legacy demo runs)
+function resolveRunDir(projectId, runId) {
+  const base = path.join(DATA_DIR, 'projects', projectId, 'Output');
+  const newLayout = path.join(base, projectId, runId);
+  if (fs.existsSync(newLayout)) return newLayout;
+  return path.join(base, runId);
+}
+
+// Back-compat alias
 function getStageDir(projectId, runId) {
-  return path.join(DATA_DIR, 'projects', projectId, 'Output', runId);
+  return resolveRunDir(projectId, runId);
 }
 
 function readJsonSafe(filePath) {
@@ -102,4 +113,4 @@ function checkStageComplete(projectId, runId) {
   return stages;
 }
 
-module.exports = { importStage, tryImportAllStages, checkStageComplete, getStageDir, readJsonSafe };
+module.exports = { importStage, tryImportAllStages, checkStageComplete, getStageDir, resolveRunDir, readJsonSafe };

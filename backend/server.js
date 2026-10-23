@@ -56,7 +56,7 @@ function serveStatic(res, filePath) {
 }
 
 function serveReportFile(res, projectId, runId, filename) {
-  const stageDir = path.join(DATA_DIR, 'projects', projectId, 'Output', runId);
+  const stageDir = importer.resolveRunDir(projectId, runId);
   const filePath = path.join(stageDir, filename);
   serveStatic(res, filePath);
 }
@@ -232,7 +232,7 @@ async function handleDashboard(req, res, projectId) {
   let dashboard = null;
   const dashRunId = active ? active.run_id : latestRun.run_id;
   try {
-    const dp = path.join(DATA_DIR, 'projects', projectId, 'Output', dashRunId, 'data', 'dashboard.json');
+    const dp = path.join(importer.resolveRunDir(projectId, dashRunId), 'data', 'dashboard.json');
     dashboard = JSON.parse(fs.readFileSync(dp, 'utf-8'));
   } catch {}
 
@@ -267,7 +267,7 @@ async function handleKillProject(req, res, projectId) {
 }
 
 function handleStageReport(res, projectId, runId, stage) {
-  const stageDir = path.join(DATA_DIR, 'projects', projectId, 'Output', runId);
+  const stageDir = importer.resolveRunDir(projectId, runId);
   const htmlPath = path.join(stageDir, `${stage}.html`);
   if (!fs.existsSync(htmlPath)) {
     return send(res, 404, { error: '该阶段报告尚未生成' });
@@ -280,7 +280,7 @@ function collectGaps(projectId) {
   const runs = db.getRuns(projectId);
   if (!runs.length) return [];
   const runId = runs[0].run_id;
-  const stageDir = path.join(DATA_DIR, 'projects', projectId, 'Output', runId, 'data');
+  const stageDir = path.join(importer.resolveRunDir(projectId, runId), 'data');
   const gaps = [];
   for (const stage of ['information','insights','goal','initiative','implementation','master']) {
     const fp = path.join(stageDir, `${stage}.json`);

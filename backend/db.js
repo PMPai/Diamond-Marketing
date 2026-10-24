@@ -84,13 +84,14 @@ CREATE TABLE IF NOT EXISTS claims (
 
 CREATE TABLE IF NOT EXISTS metrics (
   project_id TEXT,
+  run_id TEXT,
   metric_id TEXT,
   name TEXT,
   definition TEXT,
   formula TEXT,
   unit TEXT,
   window TEXT,
-  PRIMARY KEY (project_id, metric_id)
+  PRIMARY KEY (project_id, run_id, metric_id)
 );
 
 CREATE TABLE IF NOT EXISTS roi_scenarios (
@@ -113,7 +114,7 @@ CREATE TABLE IF NOT EXISTS initiatives (
   title TEXT,
   arc_focus TEXT,
   target_segment TEXT,
-  smart_goal TEXT DEFAULT '{}',
+  smart_intention TEXT DEFAULT '{}',
   kpis TEXT DEFAULT '{}',
   priority_status TEXT DEFAULT 'confirmed',
   PRIMARY KEY (project_id, run_id, initiative_id)
@@ -168,14 +169,67 @@ CREATE TABLE IF NOT EXISTS imports (
   PRIMARY KEY (project_id, run_id, stage)
 );
 
+CREATE TABLE IF NOT EXISTS corrections (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  source_run_id TEXT NOT NULL,
+  stage TEXT NOT NULL,
+  text TEXT NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  rerun INTEGER NOT NULL DEFAULT 0,
+  new_run_id TEXT,
+  status TEXT NOT NULL DEFAULT 'saved',
+  manifest_path TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(project_id, source_run_id, stage, version)
+);
+
 CREATE INDEX IF NOT EXISTS idx_sources_project ON sources(project_id);
 CREATE INDEX IF NOT EXISTS idx_claims_project_stage ON claims(project_id, stage);
 CREATE INDEX IF NOT EXISTS idx_runs_project ON runs(project_id);
 CREATE INDEX IF NOT EXISTS idx_wbs_project ON wbs_tasks(project_id, run_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_sources_dedup ON sources(project_id, source_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_claims_dedup ON claims(project_id, claim_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_roi_dedup ON roi_scenarios(project_id, run_id, initiative_id, name);
 `;
+
+function migrate() {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    db.exec('DROP INDEX IF EXISTS idx_sources_dedup; DROP INDEX IF EXISTS idx_claims_dedup');
+    const metricCols = db.prepare('PRAGMA table_info(metrics)').all();
+    const hasRunId = metricCols.some(c => c.name === 'run_id');
+    const hasRunIdPk = metricCols.some(c => c.name === 'run_id' && c.pk);
+    if (!hasRunId) {
+      db.exec("ALTER TABLE metrics RENAME TO metrics_legacy_migration;");
+      db.exec("CREATE TABLE metrics (project_id TEXT, run_id TEXT, metric_id TEXT, name TEXT, definition TEXT, formula TEXT, unit TEXT, window TEXT, PRIMARY KEY(project_id, run_id, metric_id));");
+      db.exec("INSERT INTO metrics (project_id,run_id,metric_id,name,definition,formula,unit,window) SELECT project_id,'legacy',metric_id,name,definition,formula,unit,window FROM metrics_legacy_migration;");
+      db.exec("DROP TABLE metrics_legacy_migration;");
+    } else if (!hasRunIdPk) {
+      // Rebuild with dedup to handle existing NULL duplicates
+      db.exec("CREATE TABLE metrics_new AS SELECT DISTINCT project_id,COALESCE(run_id,'legacy') AS run_id,metric_id,name,definition,formula,unit,window FROM metrics;");
+      db.exec("DROP TABLE metrics;");
+      db.exec("ALTER TABLE metrics_new RENAME TO metrics;");
+      db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_metrics_pk ON metrics(project_id,run_id,metric_id);");
+    }
+    // Backfill NULL run_ids (idempotent, handles duplicates with DELETE + INSERT OR IGNORE)
+    const nullCount = db.prepare('SELECT COUNT(*) n FROM metrics WHERE run_id IS NULL').get().n;
+    if (nullCount > 0) {
+      db.exec("CREATE TABLE metrics_dedup AS SELECT DISTINCT project_id,'legacy' AS run_id,metric_id,name,definition,formula,unit,window FROM metrics WHERE run_id IS NULL;");
+      db.exec("DELETE FROM metrics WHERE run_id IS NULL;");
+      db.exec("INSERT OR IGNORE INTO metrics SELECT * FROM metrics_dedup;");
+      db.exec("DROP TABLE metrics_dedup;");
+    }
+    const initCols = db.prepare('PRAGMA table_info(initiatives)').all();
+    if (initCols.some(c => c.name === 'smart_goal') && !initCols.some(c => c.name === 'smart_intention')) {
+      db.exec('ALTER TABLE initiatives RENAME COLUMN smart_goal TO smart_intention');
+    }
+    db.exec("UPDATE imports SET stage='intention' WHERE stage='goal' AND NOT EXISTS (SELECT 1 FROM imports i WHERE i.project_id=imports.project_id AND i.run_id=imports.run_id AND i.stage='intention')");
+    db.exec("DELETE FROM imports WHERE stage='goal' AND EXISTS (SELECT 1 FROM imports i WHERE i.project_id=imports.project_id AND i.run_id=imports.run_id AND i.stage='intention')");
+    db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_sources_run_dedup ON sources(project_id,run_id,source_id) WHERE run_id IS NOT NULL AND source_id IS NOT NULL");
+    db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_claims_run_dedup ON claims(project_id,run_id,stage,claim_id) WHERE run_id IS NOT NULL AND claim_id IS NOT NULL");
+    db.exec("CREATE INDEX IF NOT EXISTS idx_metrics_run ON metrics(project_id,run_id)");
+    db.exec('COMMIT');
+  } catch (e) { db.exec('ROLLBACK'); throw e; }
+}
 
 function init() {
   const dbDir = path.dirname(DB_PATH);
@@ -184,6 +238,7 @@ function init() {
   db.exec('PRAGMA journal_mode=WAL');
   db.exec('PRAGMA foreign_keys=ON');
   db.exec(SCHEMA);
+  migrate();
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   const projectsDir = path.join(DATA_DIR, 'projects');
   if (!fs.existsSync(projectsDir)) fs.mkdirSync(projectsDir, { recursive: true });
@@ -245,6 +300,39 @@ function getRuns(projectId) {
   return db.prepare('SELECT * FROM runs WHERE project_id = ? ORDER BY started_at DESC').all(projectId);
 }
 
+function getRun(projectId, runId) {
+  return db.prepare('SELECT * FROM runs WHERE project_id = ? AND run_id = ?').get(projectId, runId);
+}
+
+function getCorrections(projectId, sourceRunId) {
+  return db.prepare('SELECT * FROM corrections WHERE project_id = ? AND source_run_id = ? ORDER BY version DESC').all(projectId, sourceRunId);
+}
+
+function hasPendingCorrection(projectId) {
+  return !!db.prepare("SELECT 1 FROM corrections WHERE project_id = ? AND status IN ('launching','running') LIMIT 1").get(projectId);
+}
+
+function createCorrection(projectId, row) {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    const maxV = db.prepare('SELECT COALESCE(MAX(version),0) + 1 AS next FROM corrections WHERE project_id = ? AND source_run_id = ?').get(projectId, row.sourceRunId).next;
+    db.prepare('INSERT INTO corrections (id,project_id,source_run_id,stage,text,version,rerun,status,manifest_path) VALUES (?,?,?,?,?,?,?,?,?)').run(
+      row.id, projectId, row.sourceRunId, row.stage, row.text, maxV, row.rerun ? 1 : 0,
+      row.rerun ? 'launching' : 'saved', row.manifestPath || null);
+    db.exec('COMMIT');
+    return db.prepare('SELECT * FROM corrections WHERE id = ?').get(row.id);
+  } catch (e) { db.exec('ROLLBACK'); throw e; }
+}
+
+function updateCorrection(id, status, runId) {
+  db.prepare('UPDATE corrections SET status = ?, new_run_id = ? WHERE id = ?').run(status, runId || null, id);
+}
+
+function finishCorrectionForRun(projectId, runId, status) {
+  db.prepare("UPDATE corrections SET status = ? WHERE project_id = ? AND new_run_id = ? AND status = 'running'")
+    .run(status, projectId, runId);
+}
+
 function upsertGate(projectId, runId, data) {
   const existing = db.prepare('SELECT * FROM gate_requests WHERE project_id = ?').get(projectId);
   if (existing) {
@@ -285,20 +373,20 @@ function importClaims(projectId, runId, stage, claims) {
   }
 }
 
-function importMetrics(projectId, metrics) {
+function importMetrics(projectId, runId, metrics) {
   const d = getDb(); if (!d) throw new Error('DB not initialized');
-  const stmt = d.prepare('INSERT OR REPLACE INTO metrics (project_id, metric_id, name, definition, formula, unit, window) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  const stmt = d.prepare('INSERT OR REPLACE INTO metrics (project_id, run_id, metric_id, name, definition, formula, unit, window) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
   for (const m of metrics) {
-    stmt.run(projectId, m.metric_id, m.name, m.definition, m.formula, m.unit, m.window);
+    stmt.run(projectId, runId, m.metric_id, m.name, m.definition, m.formula, m.unit, m.window);
   }
 }
 
 function importInitiatives(projectId, runId, selected) {
   const d = getDb(); if (!d) throw new Error('DB not initialized');
-  const stmt = d.prepare('INSERT OR REPLACE INTO initiatives (project_id, run_id, initiative_id, title, arc_focus, target_segment, smart_goal, kpis, priority_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  const stmt = d.prepare('INSERT OR REPLACE INTO initiatives (project_id, run_id, initiative_id, title, arc_focus, target_segment, smart_intention, kpis, priority_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
   for (const ini of selected) {
     stmt.run(projectId, runId, ini.initiative_id, ini.title, ini.arc_focus || '', ini.segment || '',
-      JSON.stringify(ini.smart_goal || {}), JSON.stringify(ini.kpis || {}), ini.priority_status || 'confirmed');
+      JSON.stringify(ini.smart_intention || ini.smart_goal || {}), JSON.stringify(ini.kpis || {}), ini.priority_status || 'confirmed');
   }
 }
 
@@ -334,7 +422,7 @@ function recordImport(projectId, runId, stage, sourcePath) {
   d.prepare('INSERT OR REPLACE INTO imports (project_id, run_id, stage, source_path) VALUES (?, ?, ?, ?)').run(projectId, runId, stage, sourcePath);
 }
 
-// Dashboard data query
+// Dashboard data query - run-scoped
 function getDashboardData(projectId, runId) {
   const d = getDb(); if (!d) throw new Error('DB not initialized');
   return {
@@ -345,17 +433,18 @@ function getDashboardData(projectId, runId) {
     scenarios: d.prepare('SELECT * FROM roi_scenarios WHERE project_id = ? AND run_id = ?').all(projectId, runId),
     tasks: d.prepare('SELECT * FROM wbs_tasks WHERE project_id = ? AND run_id = ? ORDER BY task_id').all(projectId, runId),
     checkpoints: d.prepare('SELECT * FROM schedule_checkpoints WHERE project_id = ? AND run_id = ?').all(projectId, runId),
-    metrics: d.prepare('SELECT * FROM metrics WHERE project_id = ?').all(projectId),
-    sources: d.prepare('SELECT * FROM sources WHERE project_id = ?').all(projectId),
-    claims: d.prepare('SELECT * FROM claims WHERE project_id = ? ORDER BY stage, claim_id').all(projectId),
+    metrics: d.prepare('SELECT * FROM metrics WHERE project_id = ? AND (run_id = ? OR run_id = \'legacy\')').all(projectId, runId),
+    sources: d.prepare('SELECT * FROM sources WHERE project_id = ? AND run_id = ?').all(projectId, runId),
+    claims: d.prepare('SELECT * FROM claims WHERE project_id = ? AND run_id = ? ORDER BY stage, claim_id').all(projectId, runId),
+    corrections: d.prepare('SELECT * FROM corrections WHERE project_id = ? ORDER BY created_at DESC').all(projectId),
     gate: getGate(projectId)
   };
 }
 
 module.exports = { init, getDb, getProject, listProjects, createProject, updateProjectStatus,
-  createRun, updateRunStatus, updateRunStage, getActiveRun, getRuns,
+  createRun, updateRunStatus, updateRunStage, getActiveRun, getRuns, getRun, getCorrections, hasPendingCorrection, createCorrection, updateCorrection, finishCorrectionForRun,
   upsertGate, fulfillGate, getGate, recordGateSubmission,
   importSources, importClaims, importMetrics, importInitiatives, importRoiScenarios, importWbsTasks, importCheckpoints, recordImport,
-  getDashboardData,
+  getDashboardData, migrate,
   ROOT, DB_PATH, DATA_DIR
 };

@@ -18,6 +18,23 @@
 - `<PROJECT_ROOT>/uploads/`：用户补充上传的资料（可能存在）。
 - run_id 来自任务文本 `{{run_id}}`。
 
+## 修正重跑与参考复用（Correction & Reuse）
+
+当本次 Run 由用户修正意见触发重跑时，任务文本中会出现后台注入的约定行（与 PROJECT_ID / INPUTS_JSON / GATE_URL 并列）：
+
+- `CORRECTION_MANIFEST: <manifest.json 绝对路径>`——修正任务单（schema `diamond-correction/v1`）：含 `correction_id`、`version`、`project_id`、`source_run_id`、`stage`（意见指定阶段）、`user_text`（意见原文）、`instructions`、`stages`、`reference_dir`、`artifacts[]`（封存文件清单，每项 path / bytes / sha256）。
+- `SOURCE_RUN_ID: <来源 Run ID>`；`REFERENCE_DIR: <参考快照目录绝对路径>`（即 `<PROJECT_ROOT>/corrections/<correction_id>/reference/`）——来源 Run 已完成产出的封存副本，**只读**。不得写回其中；封存副本不是已验证事实，不得因为文件被复制过来就直接认定其中数据已经验证。
+
+任务文本中没有这些约定行时，按普通新 Run 执行，本节涉及修正意见的规则不适用。
+
+执行规则：
+
+1. **先读用户反馈**：开工时读取 CORRECTION_MANIFEST 指向的 manifest.json（`stage`、`user_text`）与任务文本「修正要求（指定阶段 …）」行，重点是指定本阶段（信息收集）的意见，以及用户指出的「意见涉及更早阶段或待核实资料」事项；每一条相关意见都必须纳入处理。
+2. **不声称跳过**：Antfarm 不支持跳过阶段，本工作流也不声称可以跳过——修正重跑的六阶段一律完整执行（manifest `stages` 为六阶段全列）。本阶段仍须完成输入充分性检查与门禁流程（门禁协议不因重跑而豁免）。
+3. **复用的证据必须核实**：参考快照（REFERENCE_DIR）中的 SRC/CLM/MET 仅供对照（可用 manifest `artifacts[]` 的 path/sha256 核对快照完整性）；被复制过来的文件不等于已验证资料。引用前须重新核对来源可达性与时效，必要时重新检索补强；发现与修正意见冲突时以意见与最新证据为准，不得静默沿用旧数字。
+4. **重新生成受影响的产出**：在新 STAGE_DIR 产出全套 `information.html` / `data/information.json` / `handoffs/01-information.md` 等正式产出；不得把参考快照文件直接复制到新 STAGE_DIR 充数。
+5. **记录采纳决定**：在 `handoffs/01-information.md` 的「修正采纳记录」一节逐条写明每条相关意见的处置——采纳 / 部分采纳 / 不采纳 / 待核实，附理由与受影响的产出；无法确定影响或资料真伪的标为待核实并说明缺口，不得静默改写既有事实。
+
 ## 执行步骤
 
 ### 第一步：输入充分性检查（必须最先执行）
@@ -98,6 +115,7 @@ STAGE_DIR = `<PROJECT_ROOT>/Output/<run_id>/`。
 - [ ] 未越权下后续阶段结论（市场阶段判读、IMC 设计、ROI 计算只能留「线索」）。
 - [ ] data_gaps 完整覆盖缺失字段，resolution 标 user|public|estimate。
 - [ ] 门禁路径下没有调用过 step complete。
+- [ ] 修正重跑场景：修正意见已逐条阅读，采纳决定已记入交接文档；参考快照只读、复用证据已重新核实。
 - [ ] common-rules §7 通用清单全部通过。
 
 ## Step Complete 输出格式（严格匹配 workflow.yml）

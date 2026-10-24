@@ -16,6 +16,23 @@
 
 **红线：必须沿用第一阶段的公司背景、客户画像、证据（SRC-###/CLM-###），不得另起一套。** 发现第一阶段有缺口时记为 data_gap，不要自行编造补齐。
 
+## 修正重跑与参考复用（Correction & Reuse）
+
+当本次 Run 由用户修正意见触发重跑时，任务文本中会出现后台注入的约定行（与 PROJECT_ID 等并列）：
+
+- `CORRECTION_MANIFEST: <manifest.json 绝对路径>`——修正任务单（schema `diamond-correction/v1`）：含 `correction_id`、`version`、`project_id`、`source_run_id`、`stage`（意见指定阶段）、`user_text`（意见原文）、`instructions`、`stages`、`reference_dir`、`artifacts[]`（封存文件清单，每项 path / bytes / sha256）。
+- `SOURCE_RUN_ID: <来源 Run ID>`；`REFERENCE_DIR: <参考快照目录绝对路径>`（即 `<PROJECT_ROOT>/corrections/<correction_id>/reference/`）——来源 Run 已完成产出的封存副本，**只读**。不得写回其中；封存副本不是已验证事实，不得因为文件被复制过来就直接认定其中数据已经验证。
+
+任务文本中没有这些约定行时，按普通新 Run 执行，本节涉及修正意见的规则不适用。
+
+执行规则：
+
+1. **先读用户反馈**：开工时读取 CORRECTION_MANIFEST 指向的 manifest.json（`stage`、`user_text`）与任务文本「修正要求（指定阶段 …）」行，检查指定本阶段、或指向更早阶段但影响本阶段框架（定位、市场阶段、IMC、ARC）的意见，逐条纳入处理，不得忽略。
+2. **不声称跳过**：Antfarm 不支持跳过阶段，本工作流也不声称可以跳过——即使意见未指向本阶段，本阶段仍须完整执行并产出全套正式文件（manifest `stages` 为六阶段全列）。
+3. **复用的证据必须核实**：从参考快照（REFERENCE_DIR）引用的 CLM/SRC/MET 须与当前 STAGE_DIR 的第一阶段实际产出核对一致（本 Run 上游已重算，旧快照数字可能已过期；可用 manifest `artifacts[]` 的 path/sha256 核对快照完整性）；有冲突时以本 Run 上游为准并记录差异；标注为待核实的证据不得静默当作已验证。
+4. **重新生成受影响的产出**：判断意见是否影响市场阶段判读、QBQ、IMC 说明书或 ARC 设计；受影响则重算并生成新版 `insights.html` / `data/insights.json` / `handoffs/02-insights.md` / `imc-guide.md` / `arc-design.md`；未受影响也须基于复核后的本 Run 上游重新生成，不得把参考快照文件直接复制充数。
+5. **记录采纳决定**：在 `handoffs/02-insights.md` 的「修正采纳记录」一节逐条写明处置——采纳 / 部分采纳 / 不采纳 / 待核实，附理由与受影响产出；无法确定影响或资料真伪的标为待核实并说明缺口，不得静默改写既有事实。
+
 ## 执行步骤
 
 ### 1. 证据装载
@@ -42,7 +59,7 @@
 
 ### 5. IMC 说明书（产出 handoffs/imc-guide.md）
 
-- **one voice（一个声音）**：audience / core_need / comm_goal / core_message / support（支撑点）/ tone / cta。
+- **one voice（一个声音）**：audience / core_need / comm_intention / core_message / support（支撑点）/ tone / cta。（字段原名 comm_goal，已随 Goal→Intention 全域更名；历史 Run 的 insights.json 中 comm_goal 原样保留，新 Run 一律用 comm_intention。）
 - **触点矩阵**：每行六要素——who（受众）/ what（信息）/ where（渠道）/ when（时机）/ action（动作）/ measure（衡量），渠道按 POE 分类（自有 Owned / 付费 Paid / 赢得 Earned，含 GEO「被 AI 引用」的冷静评估）。
 - **content_rules**：内容整合与叙事规则（素材库、AI 起草人审校、许可式沟通、频次纪律）。
 - 说明当前处于 IMC 七个整合层次（chapter7 表 7-4）的哪一层、下一步往哪层走。
@@ -81,6 +98,7 @@
 - [ ] 每条 QBQ 追问到「我该如何……」且 relation_type 标注正确。
 - [ ] IMC 矩阵每行六要素齐全；ARC 十二子任务全部列出，applicable 的都有验收标准。
 - [ ] data_foundation 三条规则具体到本项目（不是照抄概念）。
+- [ ] 修正重跑场景：修正意见已逐条阅读，采纳决定已记入交接文档；参考快照只读、复用证据已核实。
 - [ ] common-rules §7 通用清单全部通过。
 
 ## Step Complete 输出格式（严格匹配 workflow.yml）

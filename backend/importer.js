@@ -39,18 +39,18 @@ function importStage(projectId, runId, stage) {
       if (!json) break;
       if (json.sources?.length) { importSources(projectId, runId, json.sources); results.push(`sources: ${json.sources.length}`); }
       if (json.claims?.length) { importClaims(projectId, runId, 'information', json.claims); results.push(`claims: ${json.claims.length}`); }
-      if (json.metrics?.length) { importMetrics(projectId, json.metrics); results.push(`metrics: ${json.metrics.length}`); }
+      if (json.metrics?.length) { importMetrics(projectId, runId, json.metrics); results.push(`metrics: ${json.metrics.length}`); }
       break;
     }
     case 'insights': {
       const json = readJsonSafe(path.join(dataDir, 'insights.json'));
       if (!json) break;
-      if (json.metrics?.length) { importMetrics(projectId, json.metrics); results.push(`metrics: ${json.metrics.length}`); }
+      if (json.metrics?.length) { importMetrics(projectId, runId, json.metrics); results.push(`metrics: ${json.metrics.length}`); }
       // ARC subtasks can be imported as wbs-like entries
       break;
     }
-    case 'goal': {
-      const json = readJsonSafe(path.join(dataDir, 'goal.json'));
+    case 'intention': {
+      const json = readJsonSafe(path.join(dataDir, 'intention.json')) || readJsonSafe(path.join(dataDir, 'goal.json'));
       if (json?.selected?.length) { importInitiatives(projectId, runId, json.selected); results.push(`initiatives: ${json.selected.length}`); }
       const roi = readJsonSafe(path.join(dataDir, 'roi-scenarios.json'));
       if (roi?.scenarios_by_initiative?.length) { importRoiScenarios(projectId, runId, roi.scenarios_by_initiative); results.push(`roi_scenarios: ${roi.scenarios_by_initiative.length}`); }
@@ -72,14 +72,17 @@ function importStage(projectId, runId, stage) {
       break;
   }
 
-  recordImport(projectId, runId, stage, path.join(dataDir, `${stage}.json`));
-  updateRunStage(projectId, runId, stage);
+  if (results.length) {
+    const file = stage === 'intention' && !fs.existsSync(path.join(dataDir, 'intention.json')) ? 'goal.json' : `${stage}.json`;
+    recordImport(projectId, runId, stage, path.join(dataDir, file));
+    updateRunStage(projectId, runId, stage);
+  }
 
   return { stage, results };
 }
 
 function tryImportAllStages(projectId, runId) {
-  const stages = ['information', 'insights', 'goal', 'initiative', 'implementation', 'master'];
+  const stages = ['information', 'insights', 'intention', 'initiative', 'implementation', 'master'];
   const allResults = [];
   for (const stage of stages) {
     try {
@@ -97,17 +100,20 @@ function checkStageComplete(projectId, runId) {
   const handoffsDir = path.join(stageDir, 'handoffs');
   const stages = [];
   const stageFiles = {
-    information: '01-information.md', insights: '02-insights.md', goal: '03-goal.md',
+    information: '01-information.md', insights: '02-insights.md', intention: '03-intention.md',
     initiative: '04-initiative.md', implementation: '05-implementation.md', master: '06-master.md'
   };
   for (const [stage, file] of Object.entries(stageFiles)) {
-    const handoff = path.join(handoffsDir, file);
-    const html = path.join(stageDir, `${stage}.html`);
+    const legacy = stage === 'intention' && !fs.existsSync(path.join(handoffsDir, file));
+    const actualFile = legacy && fs.existsSync(path.join(handoffsDir, '03-goal.md')) ? '03-goal.md' : file;
+    const handoff = path.join(handoffsDir, actualFile);
+    const reportName = legacy && fs.existsSync(path.join(stageDir, 'goal.html')) ? 'goal' : stage;
+    const html = path.join(stageDir, `${reportName}.html`);
     stages.push({
       stage,
       status: fs.existsSync(handoff) ? 'done' : 'pending',
-      handoff: fs.existsSync(handoff) ? `handoffs/${file}` : null,
-      report: fs.existsSync(html) ? `${stage}.html` : null
+      handoff: fs.existsSync(handoff) ? `handoffs/${actualFile}` : null,
+      report: fs.existsSync(html) ? `${reportName}.html` : null
     });
   }
   return stages;

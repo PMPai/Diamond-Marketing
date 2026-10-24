@@ -2,8 +2,8 @@ id: diamond-marketing
 name: Diamond Marketing (6 Stages)
 version: 1
 description: >
-  钻石营销六阶段工作流（信息收集→深度分析→优先目标→沟通策略→执行建议→汇总报告），
-  依据《智慧公民_AI时代的能力养成》第七章方法论。
+  钻石营销六阶段工作流（信息收集→深度分析→优先意图→沟通策略→执行建议→汇总报告），
+  依据《智慧公民_AI时代的能力养成》第七章方法论（Goal 阶段已更名为 Intention）。
   第一阶段含资料门禁：信息不足时写 gate 文件、POST http://localhost:3330/api/gate、
   honest fail（waiting_data），后台补件完成后 workflow resume 接续。
   动态仪表板由后台 Port 3330 提供，Master agent 负责生成 data/dashboard.json（资料层）。
@@ -46,19 +46,19 @@ agents:
         data-contracts.md: agents/shared/data-contracts.md
         chapter7-method.md: resources/chapter7.md
 
-  - id: diamond-goal
-    name: Diamond-Goal agent
+  - id: diamond-intention
+    name: Diamond-Intention agent
     role: coding
     timeoutSeconds: 2700
     description: >
       第三阶段：候选池→三个优先沟通方式，ABC 成本、ROI 公式与三情境、
-      SMART 目标、Minto 金字塔，产出 goal.html。
+      SMART 意图（smart_intention）、Minto 金字塔，产出 intention.html。
     workspace:
-      baseDir: agents/diamond-goal
+      baseDir: agents/diamond-intention
       files:
-        AGENTS.md: agents/diamond-goal/AGENTS.md
-        SOUL.md: agents/diamond-goal/SOUL.md
-        IDENTITY.md: agents/diamond-goal/IDENTITY.md
+        AGENTS.md: agents/diamond-intention/AGENTS.md
+        SOUL.md: agents/diamond-intention/SOUL.md
+        IDENTITY.md: agents/diamond-intention/IDENTITY.md
         common-rules.md: agents/shared/common-rules.md
         report-style.md: agents/shared/report-style.md
         data-contracts.md: agents/shared/data-contracts.md
@@ -106,7 +106,7 @@ agents:
     timeoutSeconds: 2700
     description: >
       第六阶段：读取前五阶段产出，生成 data/dashboard.json（动态仪表板资料层，
-      由 3330 后台渲染）、artifact-manifest.json，可选静态快照 Master.html。
+      由 3330 后台渲染）、artifact-manifest.json 与必选静态汇总 master.html。
     workspace:
       baseDir: agents/master
       files:
@@ -176,10 +176,10 @@ steps:
     expects: "STATUS: done"
     max_retries: 1
 
-  - id: diamond-goal
-    agent: diamond-goal
+  - id: diamond-intention
+    agent: diamond-intention
     input: |
-      你是 Diamond-Goal agent，执行钻石营销工作流第三阶段（优先目标）。
+      你是 Diamond-Intention agent，执行钻石营销工作流第三阶段（优先意图）。
       严格按照工作区 AGENTS.md、common-rules.md、report-style.md 执行。
 
       原始任务：
@@ -202,8 +202,8 @@ steps:
       STATUS: done
       PROJECT_ID: {{project_id}}
       STAGE_DIR: {{stage_dir}}
-      HANDOFF: handoffs/03-goal.md
-      DATA_JSON: data/goal.json
+      HANDOFF: handoffs/03-intention.md
+      DATA_JSON: data/intention.json
       ROI_SCENARIOS: data/roi-scenarios.json
       SUMMARY: 一段话摘要（简体中文）
     expects: "STATUS: done"
@@ -227,7 +227,7 @@ steps:
       第二阶段 IMC 说明书：{{stage_dir}}/handoffs/imc-guide.md
       第二阶段 ARC 设计：{{stage_dir}}/handoffs/arc-design.md
 
-      为每个优先方式建立：目标→关键行动→工作包→具体任务→交付物→验收标准。
+      为每个优先方式建立：意图→关键行动→工作包→具体任务→交付物→验收标准。
       负责人未落实时用角色名称并标「待指定」，不得编造人员。
       工具研究必须用官方资料核验，未核实的功能或费用明确标记。
 
@@ -258,7 +258,7 @@ steps:
       第四阶段交接文档：{{stage_dir}}/{{handoff}}
       第四阶段数据：{{stage_dir}}/{{data_json}}
       WBS 数据：{{stage_dir}}/{{wbs_json}}
-      第三阶段目标数据：{{stage_dir}}/data/goal.json
+      第三阶段意图数据：{{stage_dir}}/data/intention.json
 
       不得在已有 WBS 之外随意增加不一致的任务或预算。
       不把计划中的动作标成已经完成，不把预期 KPI 当成实绩。
@@ -291,17 +291,18 @@ steps:
       第五阶段交接文档：{{stage_dir}}/{{handoff}}
 
       读取以下全部上游产出（均位于 STAGE_DIR 下）：
-      information.html / insights.html / goal.html / initiative.html / implementation.html
+      information.html / insights.html / intention.html / initiative.html / implementation.html
       handoffs/01-information.md … handoffs/05-implementation.md
-      data/information.json、data/insights.json、data/goal.json、data/roi-scenarios.json、
+      data/information.json、data/insights.json、data/intention.json、data/roi-scenarios.json、
       data/initiative.json、data/wbs.json、data/tool-recommendations.json、
       data/implementation.json、data/schedule.json、data/checkpoints.json
 
       重要职责区分：
-      - 你的职责是生成 data/dashboard.json（结构化资料层）和 data/artifact-manifest.json
-      - Master.html 为可选静态快照
-      - 动态仪表板由 3330 后台（http://localhost:3330/dashboard/<project_id>）渲染，
-        连接业务数据库；你不负责生成该页面
+      - 你的职责是生成 data/dashboard.json、data/artifact-manifest.json、
+        handoffs/06-master.md 和 STAGE_DIR/master.html（必选静态汇总报告）。
+      - master.html 包含六阶段导航、钻石图、KPI、INI、ROI 三情景与缺口清单；
+        不得另行编造策略或数据。
+      - 动态仪表板由 3330 后台渲染；你不负责生成该页面。
 
       不得另行编造一套策略、任务或 KPI。六阶段导航与钻石图营销节点分别建立映射。
       没有实际经营数据时实际值显示「暂无数据」，估算值单独展示。
@@ -311,6 +312,7 @@ steps:
       PROJECT_ID: {{project_id}}
       STAGE_DIR: {{stage_dir}}
       HANDOFF: handoffs/06-master.md
+      HTML: master.html
       DATA_JSON: data/dashboard.json
       MANIFEST: data/artifact-manifest.json
       SUMMARY: 一段话摘要（简体中文）

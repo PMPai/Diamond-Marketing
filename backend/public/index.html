@@ -459,6 +459,8 @@ tr.sel td    { background: #fdf3ee; box-shadow: inset 3px 0 0 var(--accent); }
             <label for="budget_range">預算範圍</label>
             <input type="text" id="budget_range" placeholder="例如：年度 100–200 萬 CNY">
           </div>
+          <!-- 使用语言（隐藏，默认简体中文） -->
+          <input type="hidden" id="language" value="zh-CN">
         </div>
         <!-- 操作列：內邊距 12px 14px，gap 10px -->
         <div class="form-actions">
@@ -476,12 +478,12 @@ tr.sel td    { background: #fdf3ee; box-shadow: inset 3px 0 0 var(--accent); }
     <div class="card">
       <p class="progress-intro">建立項目後，系統依序執行六個分析階段；實際進度與報告請到該項目的詳情頁查看。</p>
       <div class="workflow-grid">
-        <div class="workflow-step"><span class="workflow-no">01 / INFORMATION</span><h3>資訊收集</h3><p>整理公司、產品與市場的基礎資料。</p></div>
-        <div class="workflow-step"><span class="workflow-no">02 / INSIGHTS</span><h3>深度分析</h3><p>從已收集資料辨識問題與機會。</p></div>
-        <div class="workflow-step"><span class="workflow-no">03 / GOAL</span><h3>優先目標</h3><p>形成可供後續策略使用的目標與衡量方式。</p></div>
-        <div class="workflow-step"><span class="workflow-no">04 / INITIATIVE</span><h3>溝通策略</h3><p>規劃對應目標的營銷行動與溝通方向。</p></div>
-        <div class="workflow-step"><span class="workflow-no">05 / IMPLEMENTATION</span><h3>執行建議</h3><p>整理執行任務、工具與時程建議。</p></div>
-        <div class="workflow-step"><span class="workflow-no">06 / MASTER</span><h3>彙總報告</h3><p>彙整各階段的分析結果與建議。</p></div>
+        <div class="workflow-step"><span class="workflow-no">01 / 信息收集</span><h3>信息收集</h3><p>整理公司、产品与市场的基础数据。</p></div>
+        <div class="workflow-step"><span class="workflow-no">02 / 深度分析</span><h3>深度分析</h3><p>从已收集资料辨识问题与机会。</p></div>
+        <div class="workflow-step"><span class="workflow-no">03 / 优先意图</span><h3>优先意图</h3><p>形成可供后续策略使用的意图与衡量方式。</p></div>
+        <div class="workflow-step"><span class="workflow-no">04 / 沟通策略</span><h3>沟通策略</h3><p>规划对应目标的营销行动与沟通方向。</p></div>
+        <div class="workflow-step"><span class="workflow-no">05 / 执行建议</span><h3>执行建议</h3><p>整理执行任务、工具与日程建议。</p></div>
+        <div class="workflow-step"><span class="workflow-no">06 / 汇总报告</span><h3>汇总报告</h3><p>汇总各阶段的分析结果与建议。</p></div>
       </div>
       <div class="workflow-note">以上為標準流程，不代表任何項目已完成；若某階段資料不足，請以項目詳情中的實際狀態為準。</div>
     </div>
@@ -597,8 +599,9 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
     website:        document.getElementById('website').value.trim(),
     target_market:  document.getElementById('target_market').value.trim(),
     business_model: document.getElementById('business_model').value.trim(),
-    goals:          document.getElementById('goals').value.trim(),
-    budget_range:   document.getElementById('budget_range').value.trim()
+    goals:         document.getElementById('goals').value.trim(),
+    budget_range:   document.getElementById('budget_range').value.trim(),
+    language:       document.getElementById('language').value.trim() || 'zh-CN'
   };
 
   try {

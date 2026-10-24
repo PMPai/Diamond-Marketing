@@ -28,7 +28,8 @@ async function workflowRun(taskText) {
   // antfarm output: "Run: #17 (UUID)" — extract UUID directly
   const uuidMatch = result.stdout.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
   const runId = uuidMatch ? uuidMatch[1] : null;
-  return { success: result.code === 0, runId, stdout: result.stdout, stderr: result.stderr };
+  return { success: result.code === 0 && !!runId, runId, stdout: result.stdout,
+    stderr: result.code === 0 && !runId ? 'Antfarm reported success without a run ID; verify workflow state manually' : result.stderr };
 }
 
 async function workflowStatus(query) {

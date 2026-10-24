@@ -7,6 +7,9 @@
 - ID 体系（跨阶段稳定引用）：`source_id`（SRC-###）、`claim_id`（CLM-###）、`metric_id`（MET-###）、`initiative_id`（INI-#）、`task_id`（WBS-###）、`checkpoint_id`（CKP-###）。
 - 时间一律 ISO8601；金额必须带 `currency`；`confidence` 取值 `high|medium|low`；`status` 取值 `fact|assumption|to_verify`。
 
+**命名沿革（Goal → Intention，v1.1）：**
+第三阶段已由 Goal 更名为 Intention，现行契约统一使用：`data/intention.json`（`stage:"intention"`）、`handoffs/03-intention.md`、`intention.html`、字段 `smart_intention`（data/intention.json）、`comm_intention`（data/insights.json 的 imc.one_voice）、`intention_chain`（data/initiative.json）。历史 Run 中按旧名产出的文件与字段（goal.json / 03-goal.md / goal.html / smart_goal / comm_goal / goal_chain）原样保留、继续可读，但**新 Run 一律使用新名**，不得新旧混用；后台 Importer 的兼容映射由其自身文档说明，不在本契约范围内。
+
 ## data/information.json
 
 ```json
@@ -34,17 +37,19 @@
   "four_p": {"product":"","price":"","place":"","promotion":"","consistency_check":""},
   "four_c_check": {"customer_need":"","total_cost":"","convenience":"","communication":""},
   "qbq": [{"phenomenon":"","evidence":[""],"root_question":"","controllable":[""],"hypotheses":[""],"validation":"","criteria":"","relation_type":"descriptive|correlation|causal_hypothesis|verified"}],
-  "imc": {"one_voice":{"audience":"","core_need":"","comm_goal":"","core_message":"","support":[""],"tone":"","cta":""},"matrix":[{"audience":"","message":"","channel":"","timing":"","action":"","measure":""}],"content_rules":""},
+  "imc": {"one_voice":{"audience":"","core_need":"","comm_intention":"","core_message":"","support":[""],"tone":"","cta":""},"matrix":[{"audience":"","message":"","channel":"","timing":"","action":"","measure":""}],"content_rules":""},
   "arc": {"overview":"","subtasks":[{"id":"A1","name":"","applicable":true,"actions":[""],"inputs":[""],"outputs":[""],"owner_role":"","systems":[""],"kpi":"","acceptance":""}],"data_foundation":{"identity_rule":"","metric_rule":"","time_rule":""}},
   "metrics": [{"metric_id":"MET-002","name":"","definition":"","formula":"","unit":"","window":""}]
 }
 ```
 
-## data/goal.json
+## data/intention.json
+
+> 命名沿革：本契约由 `data/goal.json` 更名而来（Goal→Intention 全域改名）。`stage` 取值为 `intention`；历史 Run 中的 `data/goal.json`（`stage: "goal"`）作为既有资料原样保留，不得改写或覆盖。
 
 ```json
 {
-  "project_id": "", "run_id": "", "stage": "goal",
+  "project_id": "", "run_id": "", "stage": "intention",
   "finance_definitions": {"roi_formula":"","margin_boundary":"","cost_boundary":"","ltv_rule":""},
   "selected": [{
     "initiative_id":"INI-1","title":"","arc_focus":"A|R|C","segment":"","problem":"",
@@ -55,7 +60,7 @@
     "scenarios":[{"name":"pessimistic|base|optimistic","cost":0,"benefit":0,"roi":0,"payback_months":0,"assumptions":[""]}],
     "breakeven":{"condition":"","sensitivity":[""]},
     "risks":[""],"validation":"",
-    "smart_goal":{"specific":"","measurable":"","achievable":"","relevant":"","time_bound":""},
+    "smart_intention":{"specific":"","measurable":"","achievable":"","relevant":"","time_bound":""},
     "kpis":{"process":[{"metric_id":"","formula":"","source":"","window":""}],"outcome":[{"metric_id":"","formula":"","source":"","window":""}]},
     "priority_status":"confirmed|provisional","provisional_note":""
   }],
@@ -67,7 +72,7 @@
 
 ```json
 {
-  "project_id":"","run_id":"","stage":"goal",
+  "project_id":"","run_id":"","stage":"intention",
   "scenarios_by_initiative":[{"initiative_id":"INI-1","rows":[{"name":"","cost":0,"attributable_margin":0,"roi":0,"payback_months":0,"assumptions":[""]}]}],
   "shared_customer_dedup":[{"customer_scope":"","initiatives":["INI-1"],"attribution_rule":""}]
 }
@@ -78,7 +83,7 @@
 ```json
 {
   "project_id":"","run_id":"","stage":"initiative",
-  "initiatives":[{"initiative_id":"INI-1","goal_chain":{"goal":"","key_actions":[{"action_id":"ACT-#","title":"","value_hypothesis":{"if":"","then":"","measure":""}}]}}],
+  "initiatives":[{"initiative_id":"INI-1","intention_chain":{"intention":"","key_actions":[{"action_id":"ACT-#","title":"","value_hypothesis":{"if":"","then":"","measure":""}}]}}],
   "tool_research":[{"need_action":"","candidates":[{"system":"","capability_evidence":"","integration":"","cost_limits":"","simple_alternative":"","verified":true}]}]
 }
 ```

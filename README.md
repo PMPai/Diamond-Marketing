@@ -3,7 +3,7 @@
 以《智慧公民_AI时代的能力养成》第七章「钻石营销」为方法论的**一套大包**系统：
 六个专职 AI Agent 工作流 + 零依赖本地后台 + 资料门禁 + 动态仪表板。
 
-从项目输入到六阶段营销分析报告（信息收集 → 深度分析 → 优先目标 → 沟通策略 → 执行建议 → 汇总仪表板），全流程自动化，中途资料不足时可暂停等待人工补件、补件后自动续跑。
+从项目输入到六阶段营销分析报告（信息收集 → 深度分析 → 优先意图 → 沟通策略 → 执行建议 → 汇总仪表板），全流程自动化，中途资料不足时可暂停等待人工补件、补件后自动续跑。
 
 ---
 
@@ -19,7 +19,7 @@ Part 1: 资料补齐后台 (Port 3330) — 零依赖 node:http + node:sqlite
   └── API: 项目 CRUD / 门禁通知 / 补件校验 / 缺口提交 / kill
 
 Part 2: Antfarm 工作流 (Port 3333 只读进度)
-  ├── 6 Agent × 6 Stage（信息→分析→目标→策略→执行→汇总）
+  ├── 6 Agent × 6 Stage（信息→分析→意图→策略→执行→汇总）
   ├── Stage 1 内置资料门禁：
   │     资料不足 → 写 gate 文件 → POST :3330/api/gate
   │     → honest fail (waiting_data) → 用户在后台补件 → workflow resume 接续
@@ -79,13 +79,24 @@ node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow run diamond-marketin
 |---|-------|------|------|
 | 1 | Diamond-Information | 输入检查（**资料门禁**）+ MECE 五类研究、七条线索、证据溯源 | `information.html` + 初步定位 |
 | 2 | Diamond-Insights | 市场阶段 / 4P·4C / QBQ 分析 / IMC 说明书 / ARC 系统与十二子任务 | `insights.html` |
-| 3 | Diamond-Goal | 优先目标 + SMART KPI + ROI 三情境 | `goal.html` |
+| 3 | Diamond-Intention | 优先意图 + SMART KPI + ROI 三情境 | `intention.html` |
 | 4 | Diamond-Initiative | IMC 沟通策略 + WBS 任务分解 | `initiative.html` |
 | 5 | Diamond-Implementation | 执行建议 + 检查点 + 风险管理 | `implementation.html` |
 | 6 | Master | 汇总 `dashboard.json` + 动态仪表板资料层 | `master.html` + `data/*.json` |
 
 各阶段间以 **handoff 文件**（`handoffs/01-information.md` … `06-master.md`）传递，
 数据格式由 `workflow/agents/shared/data-contracts.md` 统一约定（含 ROI 公式与三情境定义）。
+
+### 命名沿革：Goal → Intention
+
+第三阶段原名为 Goal（diamond-goal / 优先目标），已全域更名为 **Intention（diamond-intention / 优先意图）**：
+产出改为 `intention.html` / `data/intention.json` / `handoffs/03-intention.md`，字段 `smart_goal → smart_intention`、`goal_chain → intention_chain`、`comm_goal → comm_intention`，`stage` 取值改为 `intention`。
+历史 Run 产出的旧名文件与字段作为既有资料**原样保留、继续可读**，不得改写或覆盖；新 Run 一律使用新名，不得新旧混用。
+方法论原文（chapter7）保留「Goal」措辞，对照说明见 `workflow/resources/chapter7.md` 开头的编者注。
+
+### 修正重跑（Correction Rerun）
+
+用户在仪表板提交修正意见并选择重跑时，后台会：封存来源 Run 成果为只读**参考快照**（`<PROJECT_ROOT>/corrections/<correction_id>/reference/`，含逐档 sha256 清单）、生成**修正任务单** `manifest.json`（schema `diamond-correction/v1`，含意见原文、指定阶段、封存清单），并建立新 Run，任务文本携带 `CORRECTION_MANIFEST:` / `SOURCE_RUN_ID:` / `REFERENCE_DIR:` 约定行。新 Run 六阶段依序完整执行（Antfarm 不支持跳过阶段），每阶段：阅读并采纳用户反馈、核实复用的证据、重新生成受影响的产出，并在交接文档记录采纳决定。详见各 agent `AGENTS.md` 的「修正重跑与参考复用」一节。
 
 ## 资料门禁（Gate Protocol）
 
@@ -111,7 +122,7 @@ backend/data/projects/<project_id>/
         ├── handoffs/*.md                    # 阶段交接文件
         └── data/*.json                      # 结构化数据
               ├── dashboard.json             # 仪表板资料层
-              ├── roi-scenarios.json / goal.json / insights.json
+              ├── roi-scenarios.json / intention.json / insights.json
               ├── wbs.json / schedule.json / checkpoints.json
               └── artifact-manifest.json
 ```

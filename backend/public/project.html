@@ -20,6 +20,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:8px 24px;border-bottom:2px solid var(--ink);padding-bottom:10px}
 .top h1{margin:0;font-size:22px;letter-spacing:.02em}
 .top p{margin:0;color:var(--muted);font-size:13px}
+.back-link{display:inline-block;margin-bottom:4px;font-size:12px;color:var(--muted);text-decoration:none}
+.back-link:hover{color:var(--ink)}
 .ver{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
@@ -76,15 +78,15 @@ td:first-child{white-space:nowrap}
 <script>
 const API='',p=new URLSearchParams(location.search),pid=p.get('id');
 if(!pid)location.href='/';
-const SM={information:{n:1,nm:'信息收集'},insights:{n:2,nm:'深度分析'},goal:{n:3,nm:'優先目標'},initiative:{n:4,nm:'溝通策略'},implementation:{n:5,nm:'執行建議'},master:{n:6,nm:'匯總報告'}};
+const SM={information:{n:1,nm:'信息收集'},insights:{n:2,nm:'深度分析'},intention:{n:3,nm:'優先意圖'},initiative:{n:4,nm:'溝通策略'},implementation:{n:5,nm:'執行建議'},master:{n:6,nm:'匯總報告'}};
 let runId=null,gapsData=null;
 async function load(){
   const[r1,r2]=await Promise.all([fetch(`${API}/api/projects/${pid}`),fetch(`${API}/api/projects/${pid}/gaps`)]);
   const d=await r1.json();gapsData=r2.ok?await r2.json():{gaps:[]};render(d);
 }
 function render(data){
-  const{project,active_run,gate,stages,runs}=data;
-  if(active_run)runId=active_run.run_id;
+  const{project,active_run,latest_run,gate,stages,runs}=data;
+  runId=latest_run?.run_id||null;
   const stColor=p=>p==='completed'?'ok':p==='running'?'lo':p==='failed'?'ac':'mut';
   let h='';
 
@@ -110,7 +112,7 @@ function render(data){
   h+=`</section>`;
 
   const doneStages=stages?stages.filter(s=>s.status==='done'):[];
-  if(doneStages.length&&active_run){
+  if(doneStages.length&&runId){
     h+=`<div class="bar"><span class="msg">已產生 ${doneStages.length} 份階段報告</span>
       ${doneStages.map(s=>`<button class="btn" style="font-size:12px;padding:4px 10px" onclick="openReport('${s.stage}')">第${SM[s.stage].n}階段</button>`).join('')}</div>`;
   }
@@ -126,7 +128,7 @@ function render(data){
       leftHTML+=`<div class="gap-row"><div class="gap-dot"></div>
         <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${g.name||g.metric_id} <span class="mut">${g.stage||''}</span></div>
         <p class="hint">${g.definition||g.note||''}${g.formula?' · '+g.formula:''}</p></div>
-        <input type="text" name="gap_${g.metric_id}" placeholder="${g.unit||'數值'}" style="width:110px;font-family:var(--f-mono);font-size:12px;padding:4px 6px"></div>`;});
+        <input type="text" name="gap_${g.metric_id}" placeholder="${g.unit||'數值'}" value="${g.current_value!=null?g.current_value:''}" style="width:110px;font-family:var(--f-mono);font-size:12px;padding:4px 6px"></div>`;});
     leftHTML+=`<div class="row" style="margin-top:4px"><button type="submit" class="btn primary">保存並接續</button><span class="mut" id="gapMsg"></span></div></form></div>`;
   }
 
@@ -155,7 +157,8 @@ function render(data){
   if((!active_run||(active_run&&active_run.status==='cancelled'))&&(!gate||gate.status!=='waiting')){
     h+=`<button class="btn primary" onclick="startWorkflow()">啟動工作流 ▶</button><span class="mut" id="startMsg"></span>`;
   }
-  h+=`<span class="msg"><a href="/dashboard.html?id=${pid}" class="btn" style="font-size:12px;padding:4px 10px;border-color:var(--line)">打開儀表板 →</a>　<a href="http://localhost:3333" target="_blank" class="mut" style="font-size:12px">Antfarm 進度 ↗</a>`;
+  h+=`<span class="msg"><a href="/" class="btn" style="font-size:12px;padding:4px 10px;border-color:var(--line)">← 專案列表</a>　<a href="/dashboard.html?id=${pid}" class="btn" style="font-size:12px;padding:4px 10px;border-color:var(--line)">打開儀表板 →</a>　<a href="http://localhost:3333" target="_blank" class="mut" style="font-size:12px">Antfarm 進度 ↗</a>`;
+  h+=`</span>`;
   if(active_run&&active_run.status==='running'){
     h+=`<div class="kill-btn"><button class="btn" style="border-color:var(--accent);color:var(--accent)" onclick="document.querySelector('.kill-menu').classList.toggle('show')">⏹ 控制</button>
       <div class="kill-menu"><button onclick="killCtrl('pause')">⏸ 暫停</button><button class="danger" onclick="killCtrl('terminate')">⏹ 終止並重置</button></div></div>`;
@@ -164,7 +167,7 @@ function render(data){
 
   document.getElementById('app').innerHTML=h;
   const gf=document.getElementById('gapForm');
-  if(gf&&gapsData)gf.addEventListener('submit',async e=>{e.preventDefault();const d={};gapsData.gaps.forEach(g=>{const el=gf.querySelector(`[name="gap_${g.metric_id}"]`);if(el&&el.value)d[g.metric_id]=isNaN(el.value)?el.value:Number(el.value);});
+  if(gf&&gapsData)gf.addEventListener('submit',async e=>{e.preventDefault();const d={},names={};gapsData.gaps.forEach(g=>{const el=gf.querySelector(`[name="gap_${g.metric_id}"]`);if(el&&el.value){d[g.metric_id]=isNaN(el.value)?el.value:Number(el.value);names[g.metric_id]=g.name||g.metric_id;}});d._names=names;
     const msg=document.getElementById('gapMsg');msg.textContent='保存中…';
     const r=await fetch(`${API}/api/projects/${pid}/gaps`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
     const j=await r.json();msg.textContent=r.ok?'已保存，接續中…':(j.error||'失敗');if(r.ok)setTimeout(load,1500);});
@@ -176,9 +179,9 @@ function render(data){
     const j=await r.json();msg.textContent=r.ok?'已提交，接續中…':(j.error||'失敗');if(r.ok)setTimeout(load,1500);else btn.disabled=false;});
   document.addEventListener('click',e=>{if(!e.target.closest('.kill-btn'))document.querySelector('.kill-menu')?.classList.remove('show');});
 }
-function openReport(stage){if(!runId)return;const i=SM[stage]||{n:'?',nm:stage};
+function openReport(stage){if(!runId)return;if(stage==='master'){window.location.href=`/dashboard.html?id=${encodeURIComponent(pid)}&run_id=${encodeURIComponent(runId)}`;return;}const i=SM[stage]||{n:'?',nm:stage};
   document.getElementById('modalTitle').textContent=`第${i.n}階段：${i.nm}`;
-  document.getElementById('reportFrame').src=`${API}/api/projects/${pid}/report/${stage}`;
+  document.getElementById('reportFrame').src=`${API}/api/projects/${encodeURIComponent(pid)}/report/${encodeURIComponent(stage)}?run_id=${encodeURIComponent(runId)}`;
   document.getElementById('reportModal').classList.add('active');}
 function closeModal(){document.getElementById('reportModal').classList.remove('active');document.getElementById('reportFrame').src='';}
 document.getElementById('reportModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
@@ -190,6 +193,15 @@ async function killCtrl(action){document.querySelector('.kill-menu')?.classList.
   const r=await fetch(`${API}/api/projects/${pid}/kill`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
   alert((await r.json()).message);setTimeout(load,1000);}
 load();
+// Auto-refresh while a run is active (keeps stage progress + run history current)
+setInterval(async () => {
+  try {
+    const r = await fetch(`${API}/api/projects/${pid}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.active_run && d.active_run.status === 'running') render(d);
+  } catch {}
+}, 8000);
 </script>
 </body>
 </html>

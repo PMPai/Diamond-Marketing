@@ -15,12 +15,13 @@
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 18px}.kpi-card{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--navy);padding:10px 12px;text-align:left}.kpi-card:nth-child(3n+2){border-top-color:var(--accent)}.kpi-card:nth-child(3n){border-top-color:var(--orange)}.kpi-val{font:700 20px/1.3 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--navy);overflow-wrap:anywhere}.kpi-label{font-size:12px;color:var(--muted);margin-top:4px}
 .stage-tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);padding-bottom:0}.stage-tab{font:500 12px var(--f-body);padding:8px 14px;white-space:nowrap;border-bottom:3px solid transparent;color:var(--muted)}.stage-tab.done{color:var(--accent);cursor:pointer}.stage-tab.done:hover{background:var(--soft);border-color:var(--accent)}.stage-tab.running{color:var(--orange);border-color:var(--orange)}.stage-tab-num{font-family:var(--f-mono);margin-right:6px}
 .stage-tab{border-top:0;border-left:0;border-right:0;background:transparent}.stage-tab:disabled{opacity:1;cursor:default}.report-link{font:inherit;border:0;background:none;color:var(--blue);padding:0;text-align:left;cursor:pointer}.report-link:hover{text-decoration:underline}
-.main-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}.main-col,.side-col{min-width:0}.chart-wrap{position:relative}.chart-wrap svg{width:100%;height:auto;display:block}.diamond-wrap svg{display:block;max-width:560px;width:100%;margin:0 auto}.mono-label,.roi-bar-label{font:11px var(--f-mono);fill:var(--muted)}.mono-val,.roi-bar-val{font:600 11px var(--f-mono);fill:var(--ink)}.mono-title{font:700 13px var(--f-body);fill:var(--navy)}.roi-bar-fill{transition:width .4s ease}
+.main-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}.main-col,.side-col{min-width:0}.chart-wrap{position:relative;overflow:auto}.chart-wrap svg{height:auto;display:block;max-width:none}.diamond-wrap svg{display:block;max-width:560px;width:100%;margin:0 auto}.mono-label,.roi-bar-label{font:11px var(--f-mono);fill:var(--muted)}.mono-val,.roi-bar-val{font:600 11px var(--f-mono);fill:var(--ink)}.mono-title{font:700 13px var(--f-body);fill:var(--navy)}.roi-bar-fill{transition:width .4s ease}.graphic-modal-canvas{overflow:auto;padding:20px;flex:1}.graphic-modal-canvas svg{display:block;max-width:none!important;max-height:none!important}
 .btn{font:500 13px var(--f-body);padding:7px 14px;border:1px solid var(--navy);color:var(--navy);background:#fff;cursor:pointer;text-decoration:none;display:inline-block}.btn:hover{background:var(--soft)}.btn-sm{padding:4px 12px;font-size:12px}.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-dark)}.ctrl-bar{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center}.ctrl-group{display:flex;gap:0}.ctrl-label{font-size:12px;color:var(--muted)}.seg-btn{font:13px var(--f-body);background:#fff;border:1px solid var(--line);padding:6px 11px;color:var(--muted);cursor:pointer}.seg-btn+.seg-btn{border-left:0}.seg-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .badge{display:inline-block;font-size:11px;padding:1px 6px;border:1px solid currentColor;color:var(--muted)}.badge-ok{color:var(--ok)}.badge-warn{color:var(--orange)}.badge-low{color:var(--blue)}.msg{padding:10px 14px;border-left:3px solid var(--blue);background:#ecf3f9;margin-bottom:14px;font-size:13px}.msg-error{border-color:var(--red);background:#fdf1f2;color:#8f2835}.msg-success{border-color:var(--ok);background:#eff8f6}.table-wrap{max-height:420px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:12.5px}thead{position:sticky;top:0;background:var(--soft);z-index:1}th,td{padding:5px 8px;text-align:left;border-bottom:1px solid var(--grid)}th{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}td.num{text-align:right;font:12px var(--f-mono)}td.status-ok{color:var(--ok)}td.status-warn{color:var(--red)}tr:hover td{background:var(--soft)}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(7,22,37,.62);z-index:1000;justify-content:center;align-items:center}.modal-overlay.active{display:flex}.modal{background:#fff;width:92%;max-width:1000px;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--line)}.modal-header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-header h2{font-size:14px;margin:0}.modal-close{border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}.modal-body{flex:1;overflow:auto}.modal-body iframe{width:100%;height:70vh;border:0;display:block}.kill-wrap{position:relative;display:inline-block}.kill-menu{display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid var(--line);z-index:100;min-width:160px}.kill-menu.show{display:block}.kill-menu button{display:block;width:100%;padding:10px 14px;border:0;background:#fff;text-align:left;cursor:pointer}.kill-menu button:hover{background:var(--soft)}.kill-menu button.danger:hover{color:var(--red)}
+.modal-overlay{display:none}.modal-overlay.active{display:flex;position:fixed;inset:0;background:rgba(7,22,37,.62);z-index:1000;justify-content:center;align-items:center}.modal{background:#fff;width:92%;max-width:1000px;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--line)}.modal-header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-header h2{font-size:14px;margin:0}.modal-close{border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}.modal-body{flex:1;overflow:auto}.modal-body iframe{width:100%;height:70vh;border:0;display:block}.kill-wrap{position:relative;display:inline-block}.kill-menu{display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid var(--line);z-index:100;min-width:160px}.kill-menu.show{display:block}.kill-menu button{display:block;width:100%;padding:10px 14px;border:0;background:#fff;text-align:left;cursor:pointer}.kill-menu button:hover{background:var(--soft)}.kill-menu button.danger:hover{color:var(--red)}
 @media(max-width:980px){.main-layout{grid-template-columns:1fr}.side-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:16px 12px 40px}.topbar-inner{align-items:flex-start;flex-direction:column;gap:4px}.brand{font-size:17px}.intro{align-items:start;flex-direction:column}.side-col{display:block}.kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}.meta-grid{grid-template-columns:1fr 1fr}.stage-tab{padding:7px 10px}}
 .metric-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}.metric-row{min-width:0}.metric-heading,.metric-meta{display:flex;justify-content:space-between;gap:10px}.metric-heading{font-size:12px;margin-bottom:6px}.metric-heading strong,.metric-meta span:last-child{font-family:var(--f-mono);font-variant-numeric:tabular-nums}.metric-track{height:9px;background:var(--soft);position:relative}.metric-fill{display:block;height:100%;background:var(--blue)}.metric-row:nth-child(3n+2) .metric-fill{background:var(--accent)}.metric-row:nth-child(3n) .metric-fill{background:var(--orange)}.metric-empty{position:absolute;top:-3px;left:4px;color:var(--muted);font-size:10px}.metric-meta{color:var(--muted);font-size:11px;margin-top:5px}@media(max-width:600px){.metric-list{grid-template-columns:1fr}}
+.correction-form{display:grid;gap:10px;max-width:850px}.correction-form label{font-weight:600;font-size:12px}.correction-form select,.correction-form textarea{width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px;font:13px/1.6 var(--f-body)}.correction-form textarea{min-height:120px;resize:vertical}.correction-entry{border-top:1px solid var(--grid);padding:9px 0;white-space:pre-wrap;overflow-wrap:anywhere}.correction-entry small{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -39,6 +40,12 @@
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="graphicModal" role="dialog" aria-modal="true" aria-label="完整圖形">
+  <div class="modal" style="max-width:96vw;width:96vw;height:92vh;max-height:92vh">
+    <div class="modal-header"><h2 id="graphicTitle">完整圖形</h2><button type="button" class="modal-close" id="graphicClose" aria-label="關閉完整圖形">✕</button></div>
+    <div class="graphic-modal-canvas" id="graphicCanvas"></div>
+  </div>
+</div>
 
 <script>
 const API = '',
@@ -49,16 +56,17 @@ if (!projectId) location.href = '/';
 const STAGE_MAP = {
   information:    { n: '01', nm: '資訊收集' },
   insights:       { n: '02', nm: '深度分析' },
-  goal:           { n: '03', nm: '優先目標' },
+  intention:      { n: '03', nm: '優先意圖' },
   initiative:     { n: '04', nm: '溝通策略' },
   implementation: { n: '05', nm: '執行建議' },
   master:         { n: '06', nm: '彙總報告' }
 };
 let runId = null;
 
-async function load() {
+async function load(selectedRunId) {
   try {
-    const response = await fetch(`${API}/api/dashboard/${encodeURIComponent(projectId)}`);
+    const qs = selectedRunId ? `?run_id=${encodeURIComponent(selectedRunId)}` : '';
+    const response = await fetch(`${API}/api/dashboard/${encodeURIComponent(projectId)}${qs}`);
     if (!response.ok) {
       document.getElementById('app').innerHTML = `<div class="card"><div class="card-title-row"><span class="card-title">找不到專案資料</span></div><p style="color:var(--muted);margin:0 0 14px">這個專案可能已移除，請返回項目列表選擇現有專案。</p><a class="btn btn-primary" href="/">返回項目列表</a></div>`;
       return;
@@ -79,8 +87,9 @@ function safeWebsite(v) {
   catch { return escapeHtml(v); }
 }
 function render(data) {
-  const { project, run, stages, dashboard_json, scenarios, tasks, metrics } = data;
-  if (run) runId = run.run_id;
+  const { project, run, stages, runs: allRuns, dashboard_json, scenarios, tasks, metrics } = data;
+  runId = run?.run_id || null;
+  const runList = allRuns || [];
   const dj = dashboard_json || {};
   let h = '';
 
@@ -96,7 +105,7 @@ function render(data) {
       <div class="meta-row"><span class="meta-label">業務模式</span><span class="meta-val">${escapeHtml(project.business_model || '—')}</span></div>
       <div class="meta-row"><span class="meta-label">預算</span><span class="meta-val">${escapeHtml(project.budget_range || '—')}</span></div>
       <div class="meta-row"><span class="meta-label">網站</span><span class="meta-val">${safeWebsite(project.website)}</span></div>
-      ${run ? `<div class="meta-row"><span class="meta-label">Run ID</span><span class="meta-val">${escapeHtml(run.run_id)}</span></div>` : ''}
+      ${run ? `<div class="meta-row"><span class="meta-label">Run</span><span class="meta-val"><select onchange="switchRun(this.value)" style="font:inherit;font-size:12px;max-width:240px">${runList.map(rr => `<option value="${escapeHtml(rr.run_id)}" ${rr.run_id===run.run_id?'selected':''}>${escapeHtml(rr.run_id.slice(0,18))}… (${escapeHtml(rr.status)})</option>`).join('')}</select></span></div>` : ''}
     </div>
     <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-sm" onclick="location.reload()">↻ 刷新</button>
@@ -153,6 +162,7 @@ function render(data) {
     <div class="card-title-row">
       <span class="card-title">鑽石營銷結構 · ARC 系統</span>
     </div>
+    <button type="button" class="btn btn-sm" onclick="openGraphic('diamondDiagram','鑽石營銷六階段')">查看完整圖形 ↗</button>
     <div class="diamond-wrap" id="diamondChart"></div>
     <div class="chart-src">Diamond Marketing · ARC Framework · Ch.7</div>
   </div>`;
@@ -181,32 +191,35 @@ function render(data) {
   // ── ROI scenarios ──
   if (scenarios && scenarios.length > 0) {
     const maxCost = Math.max(...scenarios.map(s => Math.abs(s.cost || 0)), 1);
-    const svgH = scenarios.length * 28 + 20;
+    const svgH = scenarios.reduce((height,s) => height + Math.max(48, Math.ceil(String(s.name || s.initiative_id || '').length / 35) * 15 + 16), 28);
     h += `<div class="card">
       <div class="card-title-row">
         <span class="card-title">ROI 情境分析</span>
         <span class="card-count">${scenarios.length} 項</span>
       </div>
-      <div class="chart-wrap"><svg viewBox="0 0 500 ${svgH}" id="roiBars"></svg></div>
+      <button type="button" class="btn btn-sm" onclick="openGraphic('roiBars','ROI 情境分析')">查看完整圖形 ↗</button>
+      <div class="chart-wrap"><svg width="1000" height="${svgH}" viewBox="0 0 1000 ${svgH}" id="roiBars" role="img" aria-label="ROI 情境分析，橫向長條為成本"></svg></div>
       <div class="chart-src">ROI Scenarios · Stage 3</div>
     </div>`;
     setTimeout(() => {
       const svg = document.getElementById('roiBars');
       if (!svg) return;
-      let y = 14;
+      let y = 20;
       scenarios.forEach((s, i) => {
-        const l    = escapeHtml(String(s.name || s.initiative_id || '').slice(0, 20));
+        const label = String(s.name || s.initiative_id || '未命名項目');
+        const lines = label.match(/.{1,35}/gu) || ['未命名項目'];
+        const l = lines.map((line,j) => `<tspan x="4" dy="${j ? 13 : 0}">${escapeHtml(line)}</tspan>`).join('');
         const cost = Number(s.cost) || 0;
-        const roi  = ((Number(s.roi) || 0) * 100).toFixed(0);
-        const w    = Math.min(Math.abs(cost) / maxCost * 280, 280);
+        const roi  = Number.isFinite(Number(s.roi)) ? (Number(s.roi) * 100).toFixed(0) : '—';
+        const w    = Math.min(Math.abs(cost) / maxCost * 320, 320);
         const col  = roi > 0 ? 'var(--accent)' : roi < 0 ? 'var(--red)' : 'var(--muted)';
         svg.innerHTML += `
-          <text x="2" y="${y+10}" class="roi-bar-label">${l}</text>
-          <rect x="112" y="${y+3}" width="${w}" height="12" rx="0" fill="${col}" class="roi-bar-fill">
+          <text x="4" y="${y+10}" class="roi-bar-label">${l}</text>
+          <rect x="510" y="${y+3}" width="${w}" height="12" rx="0" fill="${col}" class="roi-bar-fill">
             <animate attributeName="width" from="0" to="${w}" dur=".5s" fill="freeze"/>
           </rect>
-          <text x="${w+118}" y="${y+13}" class="roi-bar-val">${roi}% · ${(cost/10000).toFixed(0)}萬</text>`;
-        y += 28;
+          <text x="${w+520}" y="${y+13}" class="roi-bar-val">${roi}% · ${(cost/10000).toFixed(0)}萬</text>`;
+        y += Math.max(48, lines.length * 15 + 16);
       });
     }, 20);
   }
@@ -283,6 +296,24 @@ function render(data) {
   h += `</div>`; // end side-col
   h += `</div>`; // end main-layout
 
+  // Revision requests belong to the displayed Run, not to the project in general.
+  if (run) {
+    h += `<section class="card" aria-labelledby="correctionTitle">
+      <div class="card-title-row"><h2 class="card-title" id="correctionTitle">本次 Run 的修正意見</h2><span class="card-count">${escapeHtml(run.run_id)}</span></div>
+      <p class="card-sub">指定要檢討的階段並說明新增資料或修正理由。只儲存意見不會更動本次結果；選擇重跑會建立新的六階段 Run，並以本次成果作參考。</p>
+      <form id="correctionForm" class="correction-form">
+        <label for="correctionStage">指定階段</label>
+        <select id="correctionStage" required>${Object.entries(STAGE_MAP).map(([id,s]) => `<option value="${id}">${s.n} ${s.nm}</option>`).join('')}</select>
+        <label for="correctionText">修正意見與補充資料</label>
+        <textarea id="correctionText" maxlength="20000" required placeholder="請說明要更正的結論、補充資料及來源；若影響較早階段，也請指出。"></textarea>
+        <label><input type="checkbox" id="correctionRerun"> 儲存後建立新 Run 重新執行全部六階段</label>
+        <div><button class="btn btn-primary" type="submit" id="correctionSubmit">提交修正意見</button></div>
+        <div id="correctionMessage" role="status" aria-live="polite"></div>
+      </form>
+      <div id="correctionHistory" aria-live="polite" style="margin-top:16px">讀取意見紀錄中…</div>
+    </section>`;
+  }
+
   // ── Empty state ──
   if ((!stages || stages.length === 0) && !run) {
     h += `<div class="card">
@@ -293,6 +324,9 @@ function render(data) {
   }
 
   document.getElementById('app').innerHTML = h;
+
+  document.getElementById('correctionForm')?.addEventListener('submit', submitCorrection);
+  if (run) loadCorrections(run.run_id);
 
   // Render diamond chart
   setTimeout(() => renderDiamond(dj), 20);
@@ -305,36 +339,112 @@ function render(data) {
   });
 }
 
+async function loadCorrections(sourceRunId) {
+  const box = document.getElementById('correctionHistory');
+  if (!box) return;
+  try {
+    const res = await fetch(`${API}/api/projects/${encodeURIComponent(projectId)}/corrections?source_run_id=${encodeURIComponent(sourceRunId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const payload = await res.json();
+    const rows = Array.isArray(payload) ? payload : (payload.corrections || []);
+    const related = rows.filter(c => c.source_run_id === sourceRunId);
+    box.innerHTML = related.length ? `<strong>本次 Run 的意見紀錄</strong>${related.map(c => `<div class="correction-entry"><small>${escapeHtml(c.stage || '')} · ${escapeHtml(c.created_at || '')} · ${escapeHtml(c.status || (c.rerun ? '已要求重跑' : '已保存'))}${c.new_run_id ? ' · 新 Run ' + escapeHtml(c.new_run_id) : ''}</small><div>${escapeHtml(c.text || c.content || '')}</div></div>`).join('')}` : '<span class="card-sub">尚無修正意見。</span>';
+  } catch (e) { box.textContent = `無法讀取意見紀錄：${e.message}`; }
+}
+
+async function submitCorrection(event) {
+  event.preventDefault();
+  const sourceRunId = runId;
+  const stage = document.getElementById('correctionStage').value;
+  const text = document.getElementById('correctionText').value.trim();
+  const rerun = document.getElementById('correctionRerun').checked;
+  const msg = document.getElementById('correctionMessage');
+  const button = document.getElementById('correctionSubmit');
+  if (!sourceRunId || !text) { msg.textContent = '請先選擇 Run 並填寫修正意見。'; return; }
+  if (rerun && !confirm(`將保留原 Run ${sourceRunId}，另建新 Run 重新執行六階段。是否繼續？`)) return;
+  button.disabled = true;
+  msg.textContent = '正在提交…';
+  try {
+    const res = await fetch(`${API}/api/projects/${encodeURIComponent(projectId)}/corrections`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({source_run_id:sourceRunId,stage,text,rerun})
+    });
+    const data = await res.json();
+    msg.textContent = res.ok ? (data.message || (rerun ? `意見已保存，新 Run：${data.new_run_id || data.run_id || '待啟動'}` : '意見已保存，本次 Run 不變。')) : (data.error || data.message || `提交失敗：HTTP ${res.status}`);
+    if (res.ok) {
+      document.getElementById('correctionText').value = '';
+      document.getElementById('correctionRerun').checked = false;
+      await loadCorrections(sourceRunId);
+      if (data.new_run_id || data.run_id) setTimeout(load, 1800);
+    }
+  } catch(e) { msg.textContent = `提交失敗：${e.message}`; }
+  finally { button.disabled = false; }
+}
+
+function switchRun(newRunId) {
+  const url = new URL(location.href);
+  url.searchParams.set('run_id', newRunId);
+  history.replaceState(null, '', url);
+  load(newRunId);
+}
+
 function renderDiamond(dj) {
   const el = document.getElementById('diamondChart');
   if (!el) return;
   const stages_ = ['Attract','Relevance','Connect','Action','Retain','Refer'];
   const colors  = ['#183755','#347bbd','#087e79','#e8792d','#087e79','#347bbd'];
   const nodes   = dj.diamond?.nodes || {};
-  el.innerHTML = `<svg viewBox="0 0 340 200">
-    <g transform="translate(170,100)">
+  el.innerHTML = `<svg id="diamondDiagram" width="1100" height="460" viewBox="0 0 1100 460" role="img" aria-label="鑽石營銷六階段與各階段完整內容">
+    <g transform="translate(260,230)">
       ${stages_.map((s, i) => {
         const a = (i / stages_.length) * Math.PI * 2 - Math.PI / 2;
-        const r = 75;
-        return `<circle cx="${(Math.cos(a)*r).toFixed(2)}" cy="${(Math.sin(a)*r).toFixed(2)}" r="18" fill="none" stroke="${colors[i]}" stroke-width="2.5"/>
-          <text x="${(Math.cos(a)*r).toFixed(2)}" y="${(Math.sin(a)*r + 3).toFixed(2)}" text-anchor="middle" style="font-size:7px;fill:#10263f;font-weight:600;font-family:var(--f-mono)">${s}</text>
-          <text x="${(Math.cos(a)*r).toFixed(2)}" y="${(Math.sin(a)*r + 13).toFixed(2)}" text-anchor="middle" style="font-size:6px;fill:#607488">${escapeHtml(String(nodes[s]||'').slice(0,12))}</text>`;
+        const r = 150;
+        return `<circle cx="${(Math.cos(a)*r).toFixed(2)}" cy="${(Math.sin(a)*r).toFixed(2)}" r="38" fill="white" stroke="${colors[i]}" stroke-width="3"/>
+          <text x="${(Math.cos(a)*r).toFixed(2)}" y="${(Math.sin(a)*r + 5).toFixed(2)}" text-anchor="middle" style="font-size:13px;fill:#10263f;font-weight:600;font-family:var(--f-mono)">${s}</text>`;
       }).join('')}
-      <circle cx="0" cy="0" r="12" fill="#10263f"/>
-      <text x="0" y="3" text-anchor="middle" style="font-size:7px;fill:#ffffff;font-weight:700;">ARC</text>
+      <circle cx="0" cy="0" r="36" fill="#10263f"/>
+      <text x="0" y="5" text-anchor="middle" style="font-size:15px;fill:#ffffff;font-weight:700;">ARC</text>
       ${stages_.map((s, i) => {
         const a = (i / stages_.length) * Math.PI * 2 - Math.PI / 2;
-        return `<line x1="${(Math.cos(a)*18).toFixed(2)}" y1="${(Math.sin(a)*18).toFixed(2)}" x2="${(Math.cos(a)*57).toFixed(2)}" y2="${(Math.sin(a)*57).toFixed(2)}" stroke="${colors[i]}" stroke-width="1" stroke-dasharray="2,2"/>`;
+        return `<line x1="${(Math.cos(a)*36).toFixed(2)}" y1="${(Math.sin(a)*36).toFixed(2)}" x2="${(Math.cos(a)*112).toFixed(2)}" y2="${(Math.sin(a)*112).toFixed(2)}" stroke="${colors[i]}" stroke-width="2" stroke-dasharray="5,4"/>`;
       }).join('')}
     </g>
+    ${stages_.map((stage,i) => {
+      const lines = (String(nodes[stage] || '未提供階段說明').match(/.{1,42}/gu) || ['未提供階段說明']);
+      const y = 45 + i*69;
+      return `<rect x="520" y="${y-20}" width="565" height="${Math.max(57,lines.length*17+26)}" fill="#eef4f5"/><text x="534" y="${y}" style="font-size:15px;font-weight:700;fill:${colors[i]}">${stage}</text><text x="534" y="${y+18}" style="font-size:13px;fill:#182b3d">${lines.map((line,j) => `<tspan x="534" dy="${j ? 16 : 0}">${escapeHtml(line)}</tspan>`).join('')}</text>`;
+    }).join('')}
   </svg>`;
 }
+
+let graphicReturnFocus = null;
+function openGraphic(id,title) {
+  const original = document.getElementById(id), overlay = document.getElementById('graphicModal');
+  if (!original) return;
+  graphicReturnFocus = document.activeElement;
+  const copy = original.cloneNode(true);
+  copy.removeAttribute('id');
+  copy.style.width = `${Number(original.getAttribute('width')) || original.viewBox.baseVal.width}px`;
+  copy.style.height = `${Number(original.getAttribute('height')) || original.viewBox.baseVal.height}px`;
+  document.getElementById('graphicCanvas').replaceChildren(copy);
+  document.getElementById('graphicTitle').textContent = title;
+  overlay.classList.add('active');
+  document.getElementById('graphicClose').focus();
+}
+function closeGraphic() {
+  document.getElementById('graphicModal').classList.remove('active');
+  document.getElementById('graphicCanvas').replaceChildren();
+  graphicReturnFocus?.focus();
+}
+document.getElementById('graphicClose').addEventListener('click',closeGraphic);
+document.getElementById('graphicModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeGraphic()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.getElementById('graphicModal').classList.contains('active')) closeGraphic()});
 
 function openReport(stage) {
   if (!runId) return;
   const i = STAGE_MAP[stage] || { n: '?', nm: stage };
   document.getElementById('modalTitle').textContent = `${i.n} ${i.nm}`;
-  document.getElementById('reportFrame').src = `/api/projects/${encodeURIComponent(projectId)}/report/${encodeURIComponent(stage)}`;
+  document.getElementById('reportFrame').src = `/api/projects/${encodeURIComponent(projectId)}/report/${encodeURIComponent(stage)}?run_id=${encodeURIComponent(runId)}`;
   document.getElementById('reportModal').classList.add('active');
 }
 
@@ -368,12 +478,14 @@ function setAutoRefresh(on) {
   document.getElementById('ctrlManual')?.classList.toggle('active', !on);
 }
 
-load();
+load(params.get('run_id'));
 setInterval(() => {
   if (!autoRefresh) return;
+  // Don't re-render while user might be typing in the correction form
+  if (document.getElementById('correctionForm')) return;
   fetch(`${API}/api/projects/${encodeURIComponent(projectId)}`)
     .then(r => r.json())
-    .then(d => { if (d.project?.status === 'running') load(); })
+    .then(d => { if (d.project?.status === 'running') load(runId); })
     .catch(() => {});
 }, 20000);
 </script>

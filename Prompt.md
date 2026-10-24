@@ -2,7 +2,7 @@ ROLE
 
 你是一名熟悉 OpenClaw、Antfarm 工作流、本地 Web 应用与营销数据分析的系统架构师，同时是一名能够将钻石营销方法转化为具体业务流程的营销顾问。
 
-请建立一套名为 Diamond-Marketing 的 Antfarm 工作流，以《智慧公民_AI时代的能力养成_V8-1》第七章为方法论依据，由六个专职 Agent 连续完成信息收集、深度分析、优先目标、沟通策略、执行建议与汇总报告。
+请建立一套名为 Diamond-Marketing 的 Antfarm 工作流，以《智慧公民_AI时代的能力养成_V8-1》第七章为方法论依据，由六个专职 Agent 连续完成信息收集、深度分析、优先意图、沟通策略、执行建议与汇总报告。
 
 这套系统必须能够针对用户指定的公司和产品，产出有证据、有图形、有财务口径、能够执行并持续复盘的营销方案。
 
@@ -144,7 +144,7 @@ Product、Price、Place、Promotion。
 
 围绕同一定位建立“一个声音”，至少包含：
 
-- 目标人群、核心需求和沟通目标。
+- 目标人群、核心需求和沟通意图（对应字段 comm_intention）。
 - 核心信息、支持证据、表达语气与行动引导。
 - 广告、公关、内容、搜索、社群、活动、促销、销售沟通等适用手段。
 - 各手段的具体用法、触点、节奏、交接方式和测量方法。
@@ -184,10 +184,12 @@ handoffs/imc-guide.md
 handoffs/arc-design.md  
 data/insights.json
 
-3. 第三阶段：优先目标
+3. 第三阶段：优先意图
 
-Agent Name：Diamond-Goal agent  
-建议 ID：diamond-goal
+Agent Name：Diamond-Intention agent
+建议 ID：diamond-intention
+
+> 命名沿革：本阶段原名 Goal（Diamond-Goal / diamond-goal / 优先目标），已全域更名为 Intention；产出与字段同步更名（intention.html / 03-intention.md / intention.json / smart_intention / intention_chain / comm_intention）。历史 Run 旧名产出原样保留。
 
 目的：
 从完整营销链中，根据估算 ROI、可执行性与证据质量，确定三个最优先的沟通方式。
@@ -218,7 +220,7 @@ ARC 作为整体评价。三个优先方式可以集中在当前最关键的瓶�
 
 缺乏可靠参数时，展示范围、盈亏平衡条件和敏感性分析。不能用无依据的精确数字制造排名。证据不足的排序必须标为“暂定优先级”，并说明试点后如何更新。
 
-为三个优先方式设定 SMART 目标、过程 KPI、结果 KPI、计算公式、数据来源和时间窗口。
+为三个优先方式设定 SMART 意图（smart_intention）、过程 KPI、结果 KPI、计算公式、数据来源和时间窗口。
 
 用 Minto Pyramid 图呈现：
 
@@ -227,11 +229,11 @@ ARC 作为整体评价。三个优先方式可以集中在当前最关键的瓶�
 底层：各方式的证据、价值假设、行动与衡量指标。
 
 输出：
-goal.html
+intention.html
 
 同时生成：
-handoffs/03-goal.md  
-data/goal.json  
+handoffs/03-intention.md
+data/intention.json
 data/roi-scenarios.json
 
 4. 第四阶段：沟通策略
@@ -244,12 +246,12 @@ Agent Name：Diamond-Initiative agent
 
 为每个方式建立：
 
-目标 → 关键行动 → 工作包 → 具体任务 → 交付物 → 验收标准。
+意图 → 关键行动 → 工作包 → 具体任务 → 交付物 → 验收标准。
 
 每项任务至少包含：
 
 - 唯一任务 ID 与上级任务。
-- 对应的目标、沟通方式及 ARC 环节。
+- 对应的意图、沟通方式及 ARC 环节。
 - 具体动作、目标对象、核心信息和行动引导。
 - 输入资料与交付物。
 - 负责人角色及协作角色。
@@ -327,7 +329,7 @@ Agent Name：Master agent
 读取前五阶段通过质量检查的产出，建立完整的动态仪表板数据层。
 
 **重要区分：**
-- **Master agent 的仪表板职责**：生成 `data/dashboard.json`（结构化资料层，含钻石图节点、阶段状态、指标、筛选器定义等），以及可选的静态快照 `Master.html`。这是工作流的正式交付物。
+- **Master agent 的仪表板职责**：生成 `data/dashboard.json`（结构化资料层，含钻石图节点、阶段状态、指标、筛选器定义等），以及必选的静态报告 `master.html`。这是工作流的正式交付物。
 - **动态仪表板**：由 3330 后台提供（http://localhost:3330/dashboard/<project_id>），连接业务数据库，按需读取 `data/dashboard.json` 渲染成交互式网页。仪表板位于工作流之外，不依赖 Master agent 生成的静态 HTML。
 
 不得另行编造一套策略、任务或 KPI。
@@ -360,7 +362,7 @@ Agent Name：Master agent
 没有实际经营数据时，实际值显示“暂无数据”。估算值单独展示，不能用零值或演示数字代替实绩。
 
 输出：
-Master.html（静态快照，可选）
+master.html（静态汇总报告，必选）
 
 同时生成：
 handoffs/06-master.md  
@@ -385,10 +387,10 @@ Diamond-Marketing/
       <run_id>/
         information.html
         insights.html
-        goal.html
+        intention.html
         initiative.html
         implementation.html
-        Master.html
+        master.html
         handoffs/
         data/
         assets/
@@ -400,7 +402,7 @@ Diamond-Marketing/
 
 结构化 JSON 或数据库记录用于计算，Markdown 用于解释与交接，HTML 用于阅读。三者必须引用同一份已验证的数据，避免各自维护互相冲突的数字。
 
-跨阶段引用使用稳定 ID，例如 source_id、claim_id、goal_id、initiative_id、task_id、metric_id。
+跨阶段引用使用稳定 ID，例如 source_id、claim_id、intention_id、initiative_id、task_id、metric_id。
 
 上游内容变化后，识别并重新生成受影响的下游产出，保留版本记录。
 
@@ -415,7 +417,7 @@ Diamond-Marketing 应用系统以一个可交付的大包形式提供，内部�
 - **动态仪表板**：由本后台提供（http://localhost:3330/dashboard/<project_id>），读取业务数据库渲染交互式仪表板，支持筛选、下钻、来源链接与刷新。仪表板位于工作流之外，不依赖 Master agent 生成的静态 HTML
 
 **第二部分：Antfarm 工作流（6 个专职 Agent）**
-- 依序执行：信息收集 → 深度分析 → 优先目标 → 沟通策略 → 执行建议 → 汇总报告
+- 依序执行：信息收集 → 深度分析 → 优先意图 → 沟通策略 → 执行建议 → 汇总报告
 - 各阶段产出写入 Output/<project_id>/<run_id>/（HTML 报告、Markdown 交接、JSON 结构化数据）
 - 数据由后台 Importer 按 stage 同步写入业务数据库，供仪表板渲染
 
@@ -510,8 +512,8 @@ D:\OneDrive\Public\Book\智慧公民\智慧公民_AI时代的能力养成_V8-1.d
 
 - Information：五类资料、七条线索，每条结论有出处、口径、时效和状态。
 - Insights：通过 QBQ 将现象变成可验证假设，形成定位、市场阶段与 4P、IMC 和 ARC。
-- Goal：建立可持续的 ROI 系统，成本用 ABC 算全，长期收益考虑留存和实现概率。
-- Initiative：把目标展开为有价值假设的行动，并保证 ARC 各环节之间能够承接。
+- Intention（原 Goal）：建立可持续的 ROI 系统，成本用 ABC 算全，长期收益考虑留存和实现概率。
+- Initiative：把意图展开为有价值假设的行动，并保证 ARC 各环节之间能够承接。
 - Implementation：落实任务、负责人、起止时间、交付物、里程碑，以及人、钱、工具、时间四类资源。
 - ARC：获取、留存、转化共享数据底座，结果持续反馈到定位与动作。
 - 十二个 ARC 子任务：瞄准、沟通、连接、分类；分层、互动、成长、预警；择时、报价、搭配、打磨。

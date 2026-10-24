@@ -16,7 +16,7 @@ Diamond-Marketing 系统「资料补齐」的唯一约定。**只有第一阶段
 ├── gate.json             # 门禁状态文件（仅第一阶段可写）
 ├── uploads/              # 用户上传的补充资料
 └── Output/<run_id>/      # 各阶段产出（STAGE_DIR 即此目录的绝对路径）
-    ├── information.html / insights.html / goal.html / initiative.html / implementation.html / Master.html
+    ├── information.html / insights.html / intention.html / initiative.html / implementation.html / master.html
     ├── handoffs/*.md
     └── data/*.json
 ```
@@ -31,6 +31,17 @@ INPUTS_JSON: /abs/path/backend/data/projects/dm-20261022-ab12/input.json
 GATE_URL: http://localhost:3330/api/gate
 任务：为 <公司>（产品：<产品>）制定钻石营销方案
 ```
+
+修正重跑时，后台额外注入以下约定行（普通新 Run 没有这些行）：
+
+```
+CORRECTION_MANIFEST: /abs/path/<PROJECT_ROOT>/corrections/<correction_id>/manifest.json
+SOURCE_RUN_ID: <来源 Run ID>
+REFERENCE_DIR: /abs/path/<PROJECT_ROOT>/corrections/<correction_id>/reference/
+修正要求（指定阶段 <stage>）：<用户意见原文>
+```
+
+`manifest.json`（schema `diamond-correction/v1`）含：correction_id、version、project_id、source_run_id、stage、user_text、instructions、stages（六阶段全列）、reference_dir、artifacts[]（path/bytes/sha256）。REFERENCE_DIR 为来源 Run 成果的只读封存副本，不是已验证事实。各阶段处置规则见各自 AGENTS.md 的「修正重跑与参考复用」一节；六阶段一律完整执行，不存在跳过。
 
 ## 门禁流程（第一阶段）
 

@@ -11,10 +11,27 @@
 ## 前置输入（必须全部读取）
 
 - `{{stage_dir}}/handoffs/04-initiative.md`——第四阶段交接文档
-- `{{stage_dir}}/data/initiative.json`——目标链与关键行动
+- `{{stage_dir}}/data/initiative.json`——意图链与关键行动
 - `{{stage_dir}}/data/wbs.json`——全部任务（task_id/depends_on/resources/duration_days/done_criteria/kpi/risks）
-- `{{stage_dir}}/data/goal.json`——第三阶段目标数据（预算与 KPI 对齐基准）
+- `{{stage_dir}}/data/intention.json`——第三阶段意图数据（预算与 KPI 对齐基准）
 - 参考：`{{stage_dir}}/data/tool-recommendations.json`（工具可用性核查）
+
+## 修正重跑与参考复用（Correction & Reuse）
+
+当本次 Run 由用户修正意见触发重跑时，任务文本中会出现后台注入的约定行（与 PROJECT_ID 等并列）：
+
+- `CORRECTION_MANIFEST: <manifest.json 绝对路径>`——修正任务单（schema `diamond-correction/v1`）：含 `correction_id`、`version`、`project_id`、`source_run_id`、`stage`（意见指定阶段）、`user_text`（意见原文）、`instructions`、`stages`、`reference_dir`、`artifacts[]`（封存文件清单，每项 path / bytes / sha256）。
+- `SOURCE_RUN_ID: <来源 Run ID>`；`REFERENCE_DIR: <参考快照目录绝对路径>`（即 `<PROJECT_ROOT>/corrections/<correction_id>/reference/`）——来源 Run 已完成产出的封存副本，**只读**。不得写回其中；封存副本不是已验证事实，不得因为文件被复制过来就直接认定其中数据已经验证。
+
+任务文本中没有这些约定行时，按普通新 Run 执行，本节涉及修正意见的规则不适用。
+
+执行规则：
+
+1. **先读用户反馈**：开工时读取 CORRECTION_MANIFEST 指向的 manifest.json（`stage`、`user_text`）与任务文本「修正要求（指定阶段 …）」行，检查指定本阶段、或指向更早阶段但影响本阶段输入（WBS、预算、排期约束）的意见，逐条纳入处理，不得忽略。
+2. **不声称跳过**：Antfarm 不支持跳过阶段，本工作流也不声称可以跳过——即使意见未指向本阶段，本阶段仍须完整执行并产出全套正式文件（manifest `stages` 为六阶段全列）。
+3. **复用的证据必须核实**：从参考快照（REFERENCE_DIR）引用的排期与一致性基准须与当前 STAGE_DIR 的本 Run 上游（wbs.json、intention.json）核对（可用 manifest `artifacts[]` 的 path/sha256 核对快照完整性）；上游已重算时旧快照仅作对照，不得静默沿用旧排期或旧预算数字。
+4. **重新生成受影响的产出**：判断意见是否影响排期、甘特图、里程碑、检查点或一致性结论；受影响则重算并生成新版 `implementation.html` / `data/implementation.json` / `data/schedule.json` / `data/checkpoints.json` / `handoffs/05-implementation.md`；未受影响也须基于复核后的本 Run 上游重新生成，不得把参考快照文件直接复制充数。
+5. **记录采纳决定**：在 `handoffs/05-implementation.md` 的「修正采纳记录」一节逐条写明处置——采纳 / 部分采纳 / 不采纳 / 待核实，附理由与受影响产出；无法确定影响或资料真伪的标为待核实并说明缺口，不得静默改写既有事实。
 
 ## 红线（先读这里）
 
@@ -53,7 +70,7 @@ checkpoints[]：checkpoint_id（CKP-###）、task_ref（对应 WBS 任务）、d
 ### 6. 一致性检查（data/implementation.json 的 consistency_check）
 
 逐项核对并记录 wbs_aligned / budget_aligned / deviations[]：
-- **预算**：WBS budget 汇总 vs goal.json 各 INI cost_abc.total，差异逐条列出。
+- **预算**：WBS budget 汇总 vs intention.json 各 INI cost_abc.total，差异逐条列出。
 - **人力负载**：同一 owner_role 在并行组内的时间投入是否超载；超载给出错峰建议。
 - **工具可用性**：任务所需工具在 tool-recommendations.json 中是否 verified；未核实的工具列入风险。
 - **依赖链**：排期后每条依赖的 finish→start 关系是否成立。
@@ -87,6 +104,7 @@ checkpoints[]：checkpoint_id（CKP-###）、task_ref（对应 WBS 任务）、d
 - [ ] 相对时间已明确标示；甘特图标注「示意图」。
 - [ ] 预算/人力/工具/依赖四项一致性检查有结论，偏差逐条记录。
 - [ ] 没有任何任务被标为完成；所有 KPI 标注为目标值。
+- [ ] 修正重跑场景：修正意见已逐条阅读，采纳决定已记入交接文档；参考快照只读、复用证据已核实。
 - [ ] common-rules §7 通用清单全部通过。
 
 ## Step Complete 输出格式（严格匹配 workflow.yml）
